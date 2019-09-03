@@ -1,0 +1,474 @@
+ype
+  TForm1 = class(TForm)
+    RichEdit1: TRichEdit;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+ 
+var
+  Form1: TForm1;
+  wind: HWND;
+ 
+implementation
+ 
+{$R *.dfm}
+ 
+procedure BackGrPict(Han: HWnd;fBmp:string);
+var H:HBITMAP;
+    bm:BITMAP;
+    M,DC:HDC;
+    bW,bH:integer;
+begin
+  H:=LoadImage(GetModuleHandle(nil),PChar(fBmp),IMAGE_BITMAP,0,0,LR_LOADFROMFILE);  //грузим битмап
+  if H=0 then Exit else
+  begin
+    DC:=GetDC(Han);  //берем контекст формы
+    M:=CreateCompatibleDC(DC);  //создаем временный контекст
+    SelectObject(M,H);  //применяем к нему наш битмап
+    GetObject(H,sizeof(BITMAP),@bm);  //берем данные битмапа
+    bW:=0;
+    bH:=0;
+    BitBlt(DC,bW,bH,bm.bmWidth,bm.bmHeight,M,0,0,SRCCOPY);  //рисуем битмап на контексте формы (используя ширину и высоту)
+    DeleteDC(M);  //стираем временный контекст
+    DeleteObject(H);
+  end;
+end;
+  // до этого места я взял с Киберфорума, дальше две строчки я написал
+begin
+wind:=FindWindow('TForm','Form1');  //задается описатель окна
+BackGrPict(wind,'den.bmp');
+ 
+end.
+
+Самый правильный способ -- формировать RTF поток. 
+типа: 
+
+{\rtf1\ansi\ansicpg1251 
+{\fonttbl 
+{\f0 Courier New Cyr;} 
+{\f1 Times New Roman Cyr;}} 
+{\colortbl 
+\red0\green0\blue0; 
+\red255\green0\blue0; 
+\red255\green0\blue255; 
+\red0\green0\blue255; 
+\red220\green187\blue200;} 
+\cf0\f0 Text text text \par 
+\cf1\f1 text text text \par 
+} 
+
+Это вполне реальный rtf файл (если этот текст записать в TStream, а потом сделать RichEdit.lines.LoadFromStream то у тебя будет две строки текста (чёрная (Courier) и красная (times)). 
+вообще там дофига тэгов (упр. слов). Этими тэгами можно и таблицы делать и много чего еще. Покрытие у RTF примерно сопоставимо с HTML. 
+могу кинуть описание rtf формата (600К). помоему здесь даже выложено.
+
+
+Кратко об RTF
+
+В формате RTF используются только коды, представляемые символами из наборов ASCII, MAC и PC. Помимо текста, RTF-файл содержит команды управления в читаемой форме. Документ состоит преимущественно из команд управления настройкой программы чтения. Эти команды можно разделить на управляющие слова и управляющие символы.
+
+Управляющее слово представляет собой последовательность символов с разделителем в конце. Например, фрагмент:
+
+…\bkmkstart ndoc…
+
+
+соответствует началу закладки ndoc.
+
+Перед управляющим словом вводится обратная косая черта (\). В качестве разделителей могут использоваться следующие символы:
+
+· пробел, причем этот символ относится к управляющему слову; 
+
+· цифра или дефис (<->). После этих символов должен следовать параметр с разделителем. В качестве разделителя может быть использован пробел или другие символы (кроме цифр и букв); 
+
+· все символы, кроме цифр и букв. Эти символы не относятся к управляющему слову. 
+
+Для задания управляющей последовательности в RTF-формате используются буквы от А до Z и от а до z, а также цифры от 0 до 9. Национальные символы к управляющей информации не относятся.
+
+В качестве управляющих символов используются отдельные буквы. Перед каждым управляющим символом вводится обратная косая черта (\). Например, фрагмент:
+
+…\f1\fs20…
+
+
+устанавливает шрифт № 1 размером в 20 единиц.
+
+Фрагмент RTF-файла приведен ниже. Структура его, как можно видеть, напоминает структуру HTML-документа:
+
+\intbl\phmrg\posy371\dxfrtext180\dfrmtxtx180\dfrmtxty0\nowrap\aspalpha\aspnum
+\faauto\adjustright\rin0\lin0\f1\fs20\lang1049\langfe1049\cgrid\langnp1049\langfenp1049
+{\lang1033\langfe1049\langnp1033 11\cell 12\cell 13\cell} \pard \ql \li0\ri0\widctlpar
+\intbl \aspalpha\aspnum\faauto\adjustright\rin0\lin0
+
+В RTF-формате существует возможность объединять отдельные последовательности в группы при помощи скобок:
+
+{группа}
+
+Такие группы создаются, например, при описании сносок, колонтитулов, закладок и т.п.
+
+Вот некоторые управляющие слова и символы, имеющие непосредственное отношение к теме нашей статьи:
+
+· \раr - конец абзаца; 
+
+· \сеll - конец столбца; 
+
+· \row - конец строки (или таблицы); 
+
+· \*\bkmkstart <название закладки> \*\bkmkend - закладка. Пример: {\*\bkmkstart ndoc} BS190{\*\bkmkend ndoc}; 
+
+· \pard - устанавливает стандартную настройку для абзаца; 
+
+· \intbl … \intbl - выделяет область таблицы; 
+
+· \' - прямой ввод в текст шестнадцатеричных чисел. При сохранении кириллического текста он обычно сохраняется в шестнадцатеричной форме, например: 
+
+\'d1\'f2\'f0\'ee\'ea\'e0 ('строка')
+
+Поскольку нас интересуют только определенные задачи, знания приведенных выше управляющих слов и символов вполне достаточно. Условимся для простоты называть управляющие слова и символы тегами.
+
+А теперь рассмотрим алгоритмы решения трех основных задач, возникающих при создании документации.
+
+Вставка строки на месте закладки
+
+Пример такой закладки:
+
+…{\*\bkmkstart ndoc}<значение закладки>{\*\bkmkend ndoc}…
+
+
+Для решения данной задачи можно предложить следующий алгоритм.
+
+· Читаем последовательно строки входного файла (в большинстве случаев строка больше 255 символов). 
+
+· Ищем в текущей строке тег '\bkmkstart'. 
+
+· Если находим, то выделяем название закладки и сравниваем его с искомой. 
+
+· Если совпадает, то записываем строковую строку данных после закрывающей скобки (}). 
+
+Алгоритм реализован в виде функции In_Zakl1(pth As String, zakl As String, data As String), где pth - имя RTF-файла, zakl - имя закладки, data - строка для добавления в файл.
+
+Добавление строк в таблицу
+
+Предположим, нам требуется найти m-ю строку в n-той таблице и повторить ее в этой таблице p раз. Для поиска начала строки таблицы мы будем использовать тег \intbl, а для поиска конца - тег \row. Конец самой таблицы определяется по последовательности тегов \row…\pard…\par.
+
+Алгоритм решения этой задачи следующий.
+
+· Читаем последовательно строки входного файла. 
+
+· Ищем последовательность …\row…\pard…\par…\intbl… (не обязательно в одной строке) (n-1) раз. После этого мы находимся в начале нужной таблицы. 
+
+· Ищем тег \row (m-1) раз. После этого находимся перед нужной строкой таблицы. 
+
+· Ищем следующий тег \row и копируем содержимое файла от (m-1)-го до m-го тега \row (между \row и \intbl содержатся настройки строки, они нам тоже нужны). 
+
+· Вставляем после m-го тега \row скопированную нами подстроку p раз. 
+
+Следует отметить, что недостатком предложенного алгоритма является то, что он может копировать любую строку таблицы, кроме первой. Но в большинстве случаев первая строка является "шапкой" документа и копировать ее нет необходимости.
+
+Алгоритм реализован в виде функции In_TStr (pth As String, itbl As Integer, irow As Integer, kol As Integer), где pth - имя RTF-файла, itbl - номер таблицы, irow - номер строки, kol - количество повторов строки.
+
+Заполнение ячейки таблицы
+
+Представим, что требуется найти k-ю ячейку в m-й строке n-й таблицы и вставить в нее текстовую строку данных. Пример таких ячеек:
+
+...{\lang1033\cgrid0<содержимое 1-й ячейки>\cell<содержимое 2-й ячейки>\cell}…
+
+
+Задача может быть решена по следующему алгоритму.
+
+· Читаем последовательно строки входного файла. 
+
+· Ищем последовательность …\row…\pard…\par…\intbl… (не обязательно в одной строке) (n-1) раз. После этого мы находимся перед нужной нам таблицей. 
+
+· Ищем тег \row (m-1) раз. После этого мы находимся в начале нужной строки таблицы. 
+
+· Ищем k-e вхождение тега \cell. 
+
+· Вставляем перед ним строку данных. 
+
+Данный алгоритм реализован в виде функции In_Tcell1(pth As String, itbl As Integer, irow As Integer, icell As Integer, ndata As String), где pth - имя RTF-файла, itbl - номер таблицы, irow - номер строки, icell - номер ячейки, data - строка для занесения в ячейку.
+
+Программа на VisualBasic, демонстрирующая применение такой технологии и функционально идентичная программе, приведенной в начале этой статьи, выглядит так:
+Code:
+ 
+' NumStr - кол-во строк в отчете
+ 
+' NewData (5,NumStr) - массив с данными для заполнения таблицы,
+ 
+' заранее приведенными к символьному виду
+ 
+' Itog - сумма, приведенная к символьному виду
+ 
+' pth - путь к файлу
+ 
+' Str_ndoc = 'BS190'
+ 
+' Str_name = 'Петров И.И.'
+ 
+Dim res As Boolean ' результат выполнения функций
+ 
+' заполняем 'шапку документа' - номер и получатель
+ 
+' - закладки 'ndoc' и 'name' соответственно
+ 
+res = In_Zakl1(pth, "ndoc", Str_ndoc)
+ 
+res = In_Zakl1(pth, "name", Str_name)
+ 
+' вставляем нужное кол-во строк-1 (т.к. одна уже есть в шаблоне)
+ 
+res = In_TStr (pth, 1, 2, NumStr - 1)
+ 
+' для каждой строки в каждую ячейку вставляем нужные данные из массива
+ 
+For i = 1 To NumStr
+ 
+For j = 1 To 5
+ 
+res = In_Tcell1(pth, 1, i + 1, j, NewData (j, i))
+ 
+Next j
+ 
+Next i
+ 
+res = In_Tcell1(pth, 1, NumStr + 2, 5, Itog) ' проставляем сумму 'Всего'
+
+----------------------------
+
+unit MyRichEdit;
+//Customized RichEdit to use MS RichEdit v4.1
+// Some stuff borrowed from Michael Lam REdit (ca. 1998), found on the Torry page.
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Classes, Graphics, Controls,
+  StdCtrls, ComCtrls, Printers, RichEdit;
+
+type
+
+  {TableRowParms}
+  PTableRowParms = ^TTableRowParms;
+
+  _tableRowParms = packed record
+     cbRow         : BYTE ;     // Count of bytes in this structure
+     cbCell        : BYTE ;     // Count of bytes in TABLECELLPARMS
+     cCell         : BYTE ;     // Count of cells
+     cRow          : BYTE ;     // Count of rows
+     dxCellMargin  : LONG ;     // Cell left/right margin (\trgaph)
+     dxIndent      : LONG ;     // Row left (right if fRTL indent (similar to \trleft)
+     dyHeight      : LONG ;     // Row height (\trrh)
+     nAlignment{:3}: DWORD;    // Row alignment (like PARAFORMAT::bAlignment, \trql, trqr, \trqc)
+     fRTL{:1}      : DWORD;    // Display cells in RTL order (\rtlrow)
+     fKeep{:1}     : DWORD;    // Keep row together (\trkeep}
+     fKeepFollow{:1} : DWORD;    // Keep row on same page as following row (\trkeepfollow)
+     fWrap{:1}       : DWORD;    // Wrap text to right/left (depending on bAlignment) (see \tdfrmtxtLeftN, \tdfrmtxtRightN)
+     fIdentCells{:1} : DWORD;   // lparam points at single struct valid for all cells
+     //cpStartRow    : LONG ;   // not in Murray blog version, so commented here...
+     //bTableLevel   : BYTE;    // not in Murray blog version
+     //iCell         : BYTE;    // not in Murray blog version
+  end;
+
+  TABLEROWPARMS = _tableRowParms;
+  TTableRowParms = TABLEROWPARMS;
+
+
+  {TableCellParms}
+  PTableCellParms = ^TTableCellParms;
+
+  _tableCellParms = packed record
+     dxWidth        : LONG    ;      // Cell width (\cellx)
+     nVertAlign{:2}   : WORD    ;      // Vertical alignment (0/1/2 = top/center/bottom  \clvertalt (def), \clvertalc, \clvertalb)
+     fMergeTop{:1}    : WORD    ;      // Top cell for vertical merge (\clvmgf)
+     fMergePrev{:1}   : WORD    ;      // Merge with cell above (\clvmrg)
+     fVertical{:1}    : WORD    ;      // Display text top to bottom, right to left (\cltxtbrlv)
+     wShading       : WORD    ;      // Shading in .01% (\clshdng) e.g., 10000 flips fore/back
+     dxBrdrLeft     : SHORT   ;      // Left border width (\clbrdrl\brdrwN) (in twips)
+     dyBrdrTop      : SHORT   ;      // Top border width (\clbrdrt\brdrwN)
+     dxBrdrRight    : SHORT   ;      // Right border width (\clbrdrr\brdrwN)
+     dyBrdrBottom   : SHORT   ;      // Bottom border width (\clbrdrb\brdrwN)
+     crBrdrLeft     : COLORREF;      // Left border color (\clbrdrl\brdrcf)
+     crBrdrTop      : COLORREF;      // Top border color (\clbrdrt\brdrcf)
+     crBrdrRight    : COLORREF;      // Right border color (\clbrdrr\brdrcf)
+     crBrdrBottom   : COLORREF;      // Bottom border color (\clbrdrb\brdrcf)
+     crBackPat      : COLORREF;      // Background color (\clcbpat)
+     crForePat      : COLORREF;      // Foreground color (\clcfpat)
+  end;
+
+  TABLECELLPARMS = _tableCellParms;
+  TTableCellParms = TABLECELLPARMS;
+
+  TMyRichEdit = class(ComCtrls.TRichEdit)
+  private
+    function GetRTF: string;              // get the RTF string
+    procedure SetRTF(InRTF: string);      // set the RTF string
+  protected
+    procedure CreateParams(var Params: TCreateParams); override;
+  published
+    property RTFText: string read GetRTF write SetRTF;
+  end;
+
+//--------------------------------------------------------------
+// GLOBAL VARIABLES
+//--------------------------------------------------------------
+var
+  RichEditVersion    : Integer;         //Version of the MS Windows RichEdit DLL
+
+const
+  RichEdit10ModuleName = 'RICHED32.DLL';
+  RichEdit20ModuleName = 'RICHED20.DLL';
+  RichEdit41ModuleName = 'MSFTEDIT.DLL';
+  MSFTEDIT_CLASS = 'RichEdit50W'; //goes with RichEdit 4.1 (beginning with Win XP SP2)
+
+  EM_INSERTTABLE = WM_USER + 232;
+
+
+implementation
+
+
+function TMyRichEdit.GetRTF: string;
+var FStream : TStringStream;
+begin
+    // get the RTF string
+    FStream := TStringStream.Create;    // RTF stream
+    FStream.Clear;
+    FStream.Position := 0;
+    Lines.SaveToStream(FStream);
+    Result := FStream.DataString;
+    FStream.Free;                   // free the RTF stream
+end; //ok
+
+procedure TMyRichEdit.SetRTF(InRTF: string);
+var FStream : TStringStream;
+begin
+    // set the RTF string
+    // LoadFromStream uses an EM_STREAMIN windows msg, which by default REPLACES the contents of a RichEdit.
+    FStream := TStringStream.Create;    // RTF stream
+    FStream.Clear;
+    FStream.Position := 0;
+    FStream.WriteString(InRTF);
+    FStream.Position := 0;
+    Lines.LoadFromStream(FStream);
+    Self.Modified := false;
+    FStream.Free;                   // free the RTF stream
+end; //ok
+
+
+//===========================================================================
+//Defaults: RICHEDIT_CLASS = 'RichEdit20W'; RICHEDIT_CLASS10A = 'RICHEDIT';
+//It needs to use RichEdit50W for version 4.1, which I defined in a constant above as MSFTEDIT_CLASS.
+
+procedure TMyRichEdit.CreateParams(var Params: TCreateParams);
+begin
+  inherited CreateParams(Params);
+
+  If RichEditVersion = 1 then CreateSubClass(Params, RICHEDIT_CLASS10A)
+  else If RichEditVersion = 4 then CreateSubClass(Params, MSFTEDIT_CLASS)
+  else CreateSubClass(Params, RICHEDIT_CLASS);
+end;
+
+
+//================================================================
+{Initialization Stuff}
+//================================================================
+var
+  GLibHandle: THandle = 0;
+
+procedure InitRichEditDll;
+begin
+  //Try to load MS RichEdit v 4.1 into memory...
+  RichEditVersion := 4;
+  GLibHandle := SafeLoadLibrary(RichEdit41ModuleName);
+  if (GLibHandle > 0) and (GLibHandle < HINSTANCE_ERROR) then
+     GLibHandle := 0; //this means it could not find the DLL or it didn't load right.
+  if GLibHandle = 0 then begin
+     RichEditVersion := 2;
+     GLibHandle := SafeLoadLibrary(RichEdit20ModuleName);
+     if (GLibHandle > 0) and (GLibHandle < HINSTANCE_ERROR) then
+        GLibHandle := 0;
+     if GLibHandle = 0 then begin
+        RichEditVersion := 1;
+        GLibHandle := SafeLoadLibrary(RichEdit10ModuleName);
+        if (GLibHandle > 0) and (GLibHandle < HINSTANCE_ERROR) then begin
+           RichEditVersion := 0;
+           GLibHandle := 0;
+        end;
+     end;
+  end;
+end;
+
+procedure FinalRichEditDll;
+begin
+  if GLibHandle > 0 then
+  begin
+    FreeLibrary(GLibHandle);
+    GLibHandle := 0;
+  end;
+end;
+
+
+initialization
+  InitRichEditDll;
+
+finalization
+  FinalRichEditDll;
+
+
+End.
+Использование:
+
+Uses … MyRichEdit …
+
+type
+
+  TRichEdit = class(TMyRichEdit);
+
+  TfrmEdit = class(TForm)
+…
+    memNotes: TRichEdit;
+…
+
+end;
+
+
+procedure TfrmEdit.actTableAddExecute(Sender: TObject);
+var
+   rows: TABLEROWPARMS;
+   cells: TABLECELLPARMS;
+   rc : LRESULT; 
+begin
+   //Insert a table into the RTF.
+   ZeroMemory(@rows,sizeof(rows));
+   rows.cbRow := sizeof(TABLEROWPARMS);
+   rows.cbCell := sizeof(TABLECELLPARMS);
+   rows.cCell := 3;
+   rows.cRow := 2;
+   rows.dxCellMargin := 5; //50
+   rows.nAlignment := 1;
+   rows.dyHeight := 100;  //400
+   rows.fIdentCells := 1;
+   rows.fRTL := 0;
+   rows.fKeep := 1;
+   rows.fKeepFollow := 1;
+   rows.fWrap := 1;
+   //rows.cpStartRow := -1;
+
+   ZeroMemory(@cells,sizeof(cells));
+   cells.dxWidth := 600; //1000
+   cells.dxBrdrLeft := 1;
+   cells.dyBrdrTop := 1;
+   cells.dxBrdrRight := 1;
+   cells.dyBrdrBottom := 1;
+   cells.crBackPat := RGB(255,255,255);
+   cells.crForePat := RGB(0,0,0);
+   cells.nVertAlign := 0;
+   //cells.fMergeTop := 1;
+   //cells.fMergePrev := 1;
+   cells.fVertical := 1;
+
+   rc := SendMessage(memNotes.Handle,EM_INSERTTABLE, WPARAM(@rows),LPARAM(@cells));
+   //rc := memNotes.Perform(EM_INSERTTABLE, WPARAM(@rows),LPARAM(@cells));
+
+end;
+После выполнения rc содержит -2147024809 (E_INVALIDARG). Я не знаю, почему это не удается, или что проблема с аргументами сообщения. Как отказ от ответственности, я новичок в работе с RichEdit в Delphi, но я старался учиться как можно больше, прежде чем публиковать для справки.
+
+В моем обширном поиске я нашел этот веб-сайт 5, который может помочь устранить проблему. На этом сайте размещена утилита RTFLabel. Загрузите zip файл и посмотрите на richedit2.pas, где они объясняют, что "определение CHARFORMAT2A и CHARFORMAT2W в файле richedit.h(2005 SDK) имеет ошибку в C-части" и что им необходимо вставить новый манекен поле "исправить" выравнивание байтов структуры, чтобы заставить ее работать с Delphi. У меня такое чувство, что могут возникнуть проблемы с выравниванием с одной или обеими структурами TABLEROWPARMS и TABLECELLPARMS, которые вызывают эту ошибку.

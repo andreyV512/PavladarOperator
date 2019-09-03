@@ -1,0 +1,4 @@
+USE [buran9955Pa]
+GO
+DBCC SHRINKDATABASE(N'buran9955Pa', 10 )
+GO

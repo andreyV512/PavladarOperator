@@ -1,0 +1,130 @@
+// ---------------------------------------------------------------------------
+
+#ifndef unFmShowZonesH
+#define unFmShowZonesH
+// ---------------------------------------------------------------------------
+#include <System.Classes.hpp>
+#include <Vcl.Controls.hpp>
+#include <Vcl.StdCtrls.hpp>
+#include <Vcl.Forms.hpp>
+#include <Vcl.ExtCtrls.hpp>
+#include <VCLTee.Chart.hpp>
+#include <VCLTee.Series.hpp>
+#include <VclTee.TeeGDIPlus.hpp>
+#include <VCLTee.TeEngine.hpp>
+#include <VCLTee.TeeProcs.hpp>
+// ----------------------
+#include "unFmViewZone.h"
+// -------------------
+ #include "unTSensoD.h"
+ #include "unTGlSettings.h"
+ #include "unTExtFunction.h"
+#include <Vcl.Buttons.hpp>
+#include <Vcl.Dialogs.hpp>
+#include <Vcl.Grids.hpp>
+#include <Vcl.AppEvnts.hpp>
+#include <Vcl.Graphics.hpp>
+#include <Math.hpp>
+#include <vector>
+#include <iterator>
+using namespace std;
+// ---------------------------------------------------------------------------
+class TfmShowZones : public TForm {
+__published: // IDE-managed Components
+	TSplitter *SplitterMid;
+	TPanel *PanelTop;
+	TPanel *PanelThick;
+	TPanel *PanelLong;
+	TPanel *PanelCross;
+	TPrintDialog *PrintDialog;
+	TStringGrid *strGridCross;
+	TApplicationEvents *ApplicationEvents;
+	TStringGrid *stringGridTop;
+	TStringGrid *strGridLong;
+	TStringGrid *strGridThick;
+	TImage *imageTop;
+	TPanel *PanelT1;
+	TBitBtn *bbtPrint;
+	TCheckBox *chbWithPict;
+	TSplitter *SplitterTop;
+	TOpenDialog *OpenDialogFromFile;
+
+	void __fastcall EcrossBorder10Exit(TObject *Sender);
+	void __fastcall EcrossBorder10KeyDown(TObject *Sender, WORD &Key, TShiftState Shift);
+	void __fastcall ChartCrossClickSeries(TCustomChart *Sender, TChartSeries *Series, int ValueIndex, TMouseButton Button, TShiftState Shift, int X, int Y);
+	void __fastcall SplitterTopMoved(TObject *Sender);
+	void __fastcall FormCreate(TObject *Sender);
+	void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
+	void __fastcall SplitterMidMoved(TObject *Sender);
+	void __fastcall bbtPrintClick(TObject *Sender);
+	void __fastcall strGridCrossDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State);
+	void __fastcall ApplicationEventsMessage(tagMSG &Msg, bool &Handled);
+	void __fastcall FormShow(TObject *Sender);
+	void __fastcall strGridLongDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State);
+	void __fastcall strGridThickDrawCell(TObject *Sender, int ACol, int ARow, TRect &Rect, TGridDrawState State);
+	void __fastcall FormResize(TObject *Sender);
+	void __fastcall strGridCrossSelectCell(TObject *Sender, int ACol, int ARow, bool &CanSelect);
+
+private: // User declarations
+	//переменные
+	TColor oldColorCell;
+	int selACol;
+	int selARow;
+	TGridDrawState gridState;
+	bool canSelect;
+	bool isLoadFm;
+
+	// -------------------
+
+	// выбранная зона
+	int selectZone;
+	// выбранный сенсор
+	int selectSensor;
+	// есть выбранная зона
+	bool isZoneMarked;
+	// цвет выбранной зоны
+	TColor colorMark;
+
+	// функции
+	void SaveBorders();
+	int ShowZoneData(int _zone, int _sensor);
+	void MarkerSet(int _zone, int _sensor);
+	void MarkerOff(void);
+	//vector <TSensorD*> sensorsTh;
+	//vector <TSensorD*> sensorsL;
+	//vector <TSensorD*> sensorsC;
+	TPrinter* printer;
+    TImage* image;
+
+	UINT msgFmViewZone;
+	int PrintImage(TImage* _image, AnsiString _filename, TPrinter* _printer, TPrinterOrientation _orientation, int _beginPrinterXmm, int _beginPrinterYmm, int _widgthIcon,
+	int _heightIcon, bool _isPrinting);
+	int PrintGridCanvas(TStringGrid *_grid, TPrinter* _printer, TPrinterOrientation _orientation, int _beginPrinterXmm, int _beginPrinterYmm,
+	 int _widgthMm, int _heigtMm,bool _isPrinting);
+	int PrintGrid(AnsiString _title, TStringGrid *_grid, TPrinter* _printer, TPrinterOrientation _orientation, int _beginPrinterXmm,
+	   int _beginPrinterYmm,int headerSizeMm, int footerSizeMm,int _colPerPage,bool _isPrinting);
+	int PrintResult(TPrinter* _printer, TPrinterOrientation _orientation, int _beginPrinterXPmm, int _beginPrinterYPmm);
+
+	vector<int> VZoneLength;
+	int ZoneLength;
+	// ! Кол-во отображаемых зон в результате
+	short zones;
+		// ! Кол-во активных сенсоров (датчиков)
+	short sensors_a;
+		// ! массив итоговых значений по зонам
+	DynamicArray<double>zone_data;
+		// ! массив итоговых значений по датчикам
+	vector<vector<double> >sensor_data;
+		// зона.датчик.измерение
+	vector<vector<vector<double> > >Source_Data;
+public: // User declarations
+// -------------------
+__fastcall TfmShowZones(TComponent* Owner);
+int numTube; //указатель на трубу
+
+};
+
+// ---------------------------------------------------------------------------
+extern PACKAGE TfmShowZones *fmShowZones;
+// ---------------------------------------------------------------------------
+#endif

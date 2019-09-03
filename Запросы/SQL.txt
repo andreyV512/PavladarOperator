@@ -1,0 +1,10 @@
+SELECT TOP 1000 [Path]
+      ,[Val]
+  FROM [buran9955Pa].[dbo].[Parameters]
+  where Path like('ParAll.ST.TSSet%Name')
+  and Val='6'
+  SELECT TOP 1000 [Path]
+      ,[Val]
+  FROM [buran9955Pa].[dbo].[Parameters]
+  where Path like('ParAll.ST.TSSet{00002}%Border1')
+  

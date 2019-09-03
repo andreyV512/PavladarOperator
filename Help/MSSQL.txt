@@ -1,0 +1,63 @@
+Ограничение размера базы данных для SQL Express Edition
+Я новичок в SQL Server, поэтому я прочитал, что ограничение размера базы данных MS SQL Server 2008 Express Edition составляет 10 ГБ. Теперь мой вопрос: могу ли я иметь несколько баз данных, таких как база данных А с 8 ГБ и база данных Б размером 10 ГБ. Я имею в виду ограничение размера для отдельной базы данных данных или для всего размера базы данных SQL Server.
+
+спасибо заранее
+
+7 sql-server
+задан Syam kumar 25 сент. '13 в 13:21 источникподелиться
+3 ответов
+Проверьте этот script на вашем сервере SQL -
+
+SELECT 
+      d.server_name
+    , d.sversion_name
+    , d.edition
+    , max_db_size_in_gb = 
+        CASE WHEN engine_edition = 4 -- Express version
+            THEN 
+                CASE 
+                    WHEN d.sversion_name LIKE '%2016%' THEN 10
+                    WHEN d.sversion_name LIKE '%2014%' THEN 10
+                    WHEN d.sversion_name LIKE '%2012%' THEN 10
+                    WHEN d.sversion_name LIKE '%2008 R2%' THEN 10
+                    WHEN d.sversion_name LIKE '%2008%' THEN 4 
+                    WHEN d.sversion_name LIKE '%2005%' THEN 4
+                END
+            ELSE -1 
+        END
+FROM (
+    SELECT 
+          sversion_name = SUBSTRING(v.ver, 0, CHARINDEX('-', v.ver) - 1)
+        , engine_edition = SERVERPROPERTY('EngineEdition')
+        , edition = SERVERPROPERTY('Edition')
+        , server_name = SERVERPROPERTY('ServerName')
+    FROM (SELECT ver = @@VERSION) v
+) d
+Вывод для SQL Server 2005 Express -
+
+server_name      sversion_name               edition           max_db_size_in_gb
+---------------- --------------------------- ----------------- -----------------
+SERV1\SQL2005    Microsoft SQL Server 2005   Express Edition   4
+Выход для SQL Server 2012 Express -
+
+server_name      sversion_name               edition           max_db_size_in_gb
+---------------- --------------------------- ----------------- -----------------
+SERV1\SQL2012    Microsoft SQL Server 2012   Express Edition   10
+9 
+ответ дан Devart 25 сент. '13 в 13:40 источникподелиться
+Да, он был увеличен с 4 до 10 ГБ
+
+Пожалуйста, обратитесь SQL Server Express WebLog
+
+В теории вы можете создать несколько баз данных, каждая из которых должна быть меньше 10 ГБ
+
+9 
+ответ дан huMpty duMpty 25 сент. '13 в 13:31 источникподелиться
+Не зависит от количества db, all db size can not exceed 10GB
+
+https://forum.infostart.ru/forum86/topic52347/
+Базы данных SQL Server содержат файлы трех типов. 
+Первичные файлы данных. 
+Первичный файл данных является отправной точкой базы данных. Он указывает на остальные файлы базы данных. В каждой базе данных имеется один первичный файл данных. Для имени первичного файла данных рекомендуется использовать расширение MDF. 
+Вторичные файлы данных. 
+Ко вторичным файлам данных относятся все файлы данных, за исключением первичного файла данных. Некоторые базы данных могут вообще не содержать вторичных файлов данных, тогда как другие содержат несколько вторичных файлов данных. Для имени вторичного файла данных рекомендуется использовать расширение NDF.
