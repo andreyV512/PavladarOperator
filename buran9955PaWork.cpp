@@ -8,16 +8,15 @@ USEFORM("unSetDirectory.cpp", fmSetDirectory);
 USEFORM("unShowListTubes.cpp", fmShowListTubes);
 USEFORM("unMain.cpp", fmMain);
 USEFORM("unFmViewZone.cpp", fmViewZone);
-USEFORM("Unit1.cpp", Form1);
 USEFORM("unSQLDbModule.cpp", SqlDBModule); /* TDataModule: File Type */
+USEFORM("unFmShowZones.cpp", fmShowZones);
 USEFORM("unFmBackup.cpp", fmCreateBackup);
 USEFORM("ABOUT_NTC_NK_URAN.cpp", fmAboutBox);
+USEFORM("unFmModifyRecord.cpp", fmModifyRecord);
 USEFORM("unFmReport.cpp", fmReport);
-USEFORM("unFmShowZones.cpp", fmShowZones);
 USEFORM("unFmMessage.cpp", fmMessage);
 USEFORM("unFmGSettings.cpp", fmGSettings);
 USEFORM("unFmInfo.cpp", fmInfo);
-USEFORM("unFmModifyRecord.cpp", fmModifyRecord);
 //---------------------------------------------------------------------------
 int WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
 {
