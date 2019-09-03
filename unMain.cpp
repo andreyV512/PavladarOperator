@@ -121,7 +121,7 @@ int TfmMain::CreateTables(int _numFusion, int _numTube) {
 			// SqlDBModule->queryQuick->Close();
 			// --------
 			// 12 по поперечнику
-			for (int i = 0; i < TGlSettings::countSensorsCross; i++) {
+			if(cbCross->Checked)for (int i = 0; i < TGlSettings::countSensorsCross; i++) {
 				strSql = "INSERT INTO resultCross(";
 				strSql += "sensorNum, numTube,numFusion)";
 				strSql += " VALUES(";
@@ -136,7 +136,7 @@ int TfmMain::CreateTables(int _numFusion, int _numTube) {
 				SqlDBModule->queryQuick->Close();
 			}
 			// 32 по продольнику
-			for (int i = 0; i < TGlSettings::countSensorsLong; i++) {
+			if(cbLong->Checked)for (int i = 0; i < TGlSettings::countSensorsLong; i++) {
 				strSql = "INSERT INTO resultLong(";
 				strSql += "sensorNum, numTube,numFusion)";
 				strSql += " VALUES(";
@@ -150,7 +150,7 @@ int TfmMain::CreateTables(int _numFusion, int _numTube) {
 				SqlDBModule->queryQuick->ExecSQL();
 				SqlDBModule->queryQuick->Close();
 			}
-			for (int i = 0; i < TGlSettings::countRecordsThick; i++) {
+			if(cbThick->Checked)for (int i = 0; i < TGlSettings::countRecordsThick; i++) {
 				strSql = "INSERT INTO resultThick(";
 				strSql += "sensorNum, numTube,numFusion)";
 				strSql += " VALUES(";
@@ -366,30 +366,30 @@ void __fastcall TfmMain::bbtReadyClick(TObject *Sender) {
 
 void __fastcall TfmMain::bbtStopClick(TObject *Sender) {
 	int err = 0;
-	if (errT > 0 && errC > 0 && errL > 0) {
+	//if (errT > 0 && errC > 0 && errL > 0) {
 		//
-	}
-	else {
+   //	}
+  //	else {
 		if (errT > 0 || errC > 0 || errL > 0) {
-			if (MessageDlg("Оставляем трубу без данных?", mtWarning, TMsgDlgButtons() << mbYes << mbNo, NULL) == mrYes) {
-				TGlSettings::numTube++;
-				err = CreateTables(TGlSettings::currFusion, TGlSettings::numTube++);
-				lbxInfo->AddItem("Создаем заготовку трубы " + IntToStr(TGlSettings::numTube), NULL);
+	   //		if (MessageDlg("Оставляем трубу без данных?", mtWarning, TMsgDlgButtons() << mbYes << mbNo, NULL) == mrYes) {
+			//	TGlSettings::numTube++;
+			 //	err = CreateTables(TGlSettings::currFusion, TGlSettings::numTube++);
+			  //	lbxInfo->AddItem("Создаем заготовку трубы " + IntToStr(TGlSettings::numTube), NULL);
 				Application->ProcessMessages();
 				TGlSettings::isWorkState = false;
 				lbxInfo->AddItem("Отработали останов", NULL);
 				SqlDBModule->UpdIntSql(" flags ", " isReady ", 0, NULL);
 				Application->ProcessMessages();
 			}
-			else {
-				continueWait = true;
-				secYearBeginWait = SecondOfTheYear(Now());
-				return;
+		   //	else {
+			 //	continueWait = true;
+			   //	secYearBeginWait = SecondOfTheYear(Now());
+			   //	return;
 				// SqlDBModule->UpdIntSql(" flags ", " isReady ", 0, NULL);
 				// lbxInfo->AddItem("isReady=0", NULL);
-			}
-		}
-	}
+			//}
+	//	}
+   //	}
 	PanelTopChoice->Enabled = true;
 	bbtReady->Enabled = false;
 	bbtStop->Enabled = false;
@@ -1532,7 +1532,7 @@ void __fastcall TfmMain::TimerUpdateStateTimer(TObject *Sender) {
 				// // bbtStopClick(bbtStop);
 				// }
 			}
-			else {
+			else if(bT || bC || bL){
 				pnlMsg->Caption = "ПОЛУЧИЛИ ДАННЫЕ ПО ТРУБЕ № " + IntToStr(TGlSettings::numTube);
 				pnlMsg->Font->Color = clGreen;
 				pnlMsg->Refresh();
@@ -3000,7 +3000,7 @@ int TfmMain::GetDataCross(int _numFusion, int _numTube, double _thresholdC1, dou
 
 		SqlDBModule->queryForChart->Open();
 		if (SqlDBModule->queryForChart->RecordCount == 0) {
-			MessageDlg(strNoDataC, mtWarning, TMsgDlgButtons() << mbOK, NULL);
+		  //	MessageDlg(strNoDataC, mtWarning, TMsgDlgButtons() << mbOK, NULL);
 			chartCross->Title->Clear();
 			chartCross->Title->Text->Add(strTitleC);
 			chartCross->Title->Text->Add(strNoDataC);
@@ -3154,7 +3154,7 @@ int TfmMain::GetDataLong(int _numFusion, int _numTube, double _thresholdL1, doub
 
 		SqlDBModule->queryForChart->Open();
 		if (SqlDBModule->queryForChart->RecordCount == 0) {
-			MessageDlg(strNoDataL, mtWarning, TMsgDlgButtons() << mbOK, NULL);
+			//MessageDlg(strNoDataL, mtWarning, TMsgDlgButtons() << mbOK, NULL);
 			chartLong->Title->Clear();
 			chartLong->Title->Text->Add(strTitleL);
 			chartLong->Title->Text->Add(strNoDataL);
@@ -3347,7 +3347,7 @@ int TfmMain::GetDataThick(int _numFusion, int _numTube, double _thresholdTNomina
 		// ---------------- min
 		SqlDBModule->queryForChart->First();
 		if (SqlDBModule->queryForChart->RecordCount == 0) {
-			MessageDlg(strNoDataT, mtWarning, TMsgDlgButtons() << mbOK, NULL);
+			//MessageDlg(strNoDataT, mtWarning, TMsgDlgButtons() << mbOK, NULL);
 			chartThick->Title->Clear();
 			chartThick->Title->Text->Add(strTitleT);
 			chartThick->Title->Text->Add(strNoDataT);
