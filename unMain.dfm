@@ -28,8 +28,6 @@ object fmMain: TfmMain
     Height = 153
     Align = alTop
     TabOrder = 0
-    ExplicitLeft = 2
-    ExplicitTop = -5
     object Label1: TLabel
       Left = 160
       Top = 67
@@ -326,6 +324,8 @@ object fmMain: TfmMain
       TabOrder = 1
       WordWrap = True
       OnClick = bbtReadyClick
+      ExplicitLeft = 141
+      ExplicitTop = 0
     end
     object bbtStop: TBitBtn
       Left = 283
