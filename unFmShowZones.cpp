@@ -79,6 +79,8 @@ void __fastcall TfmShowZones::ChartCrossClickSeries(TCustomChart *Sender, TChart
 	double valZone = 0;
 	TChart* pChart = static_cast<TChart*>(Sender);
 	TChartSeries *pSeries0 = pChart->Series[0];
+	pSeries0->Clear();
+
 	if (Button == mbLeft) {
 		selectZoneC = ValueIndex;
 	}
@@ -104,11 +106,14 @@ void __fastcall TfmShowZones::ChartCrossClickSeries(TCustomChart *Sender, TChart
 	tmpStr += " - ";
 	tmpStr += IntToStr(ValueIndex * 100) + " мм)";
 	tmpStr += " Макс сигнал=";
+	if(!dataCross.empty())
+	{
 	if (dataCross[selectZoneC] < 0) {
 		tmpStr += "XXX";
 	}
 	else {
 		tmpStr += FloatToStrF(dataCross[selectZoneC], ffFixed, 4, 1) + "%";
+	}
 	}
 	colorMark = clFuchsia;
 	if (selectZoneC > 0 && selectZoneC < countZones) {
@@ -703,8 +708,8 @@ int TfmShowZones::GetDataCross(int _numFusion, int _numTube) {
 		SqlDBModule->queryForChart->Parameters->ParamByName("pnumFusion")->Value = _numFusion;
 		SqlDBModule->queryForChart->Open();
 		if (SqlDBModule->queryForChart->RecordCount == 0) {
-			MessageDlg("Данных по дефектам МНК2 нет!", mtWarning, TMsgDlgButtons() << mbOK, NULL);
-			chartCross->Title->Text->Add("Данных по дефектам МНК2(C) нет!");
+		   //	MessageDlg("Данных по дефектам МНК2 нет!", mtWarning, TMsgDlgButtons() << mbOK, NULL);
+			//chartCross->Title->Text->Add("Данных по дефектам МНК2(C) нет!");
 			err = 0;
 			return err;
 		}
@@ -822,7 +827,7 @@ int TfmShowZones::GetDataCross(int _numFusion, int _numTube) {
 		}
 		int aa = countBrak;
 		if (countNulls == TGlSettings::countZones * TGlSettings::countSensorsCross) {
-			chartCross->Title->Text->Add("Данных по дефектам МНК2 нет!");
+		  //	chartCross->Title->Text->Add("Данных по дефектам МНК2 нет!");
 			chartCross->Series[0]->Clear();
 			chartCross->Series[1]->Clear();
 			chartCross->Series[2]->Clear();
@@ -890,8 +895,8 @@ int TfmShowZones::GetDataLong(int _numFusion, int _numTube) {
 		SqlDBModule->queryForChart->Parameters->ParamByName("pnumFusion")->Value = _numFusion;
 		SqlDBModule->queryForChart->Open();
 		if (SqlDBModule->queryForChart->RecordCount == 0) {
-			MessageDlg("Данных по МНК3 нет!", mtWarning, TMsgDlgButtons() << mbOK, NULL);
-			chartCross->Title->Text->Add("Данных по дефектам МНК3 нет!");
+		 //	MessageDlg("Данных по МНК3 нет!", mtWarning, TMsgDlgButtons() << mbOK, NULL);
+		   //	chartCross->Title->Text->Add("Данных по дефектам МНК3 нет!");
 			return 0;
 		}
 		else {
@@ -1013,7 +1018,7 @@ int TfmShowZones::GetDataLong(int _numFusion, int _numTube) {
 		int aa = countBrak;
 		err = 0;
 		if (countNulls == TGlSettings::countZones * TGlSettings::countSensorsLong) {
-			chartLong->Title->Text->Add("Данных по дефектам МНК3 нет!");
+		  //	chartLong->Title->Text->Add("Данных по дефектам МНК3 нет!");
 			chartLong->Series[0]->Clear();
 			chartLong->Series[1]->Clear();
 			chartLong->Series[2]->Clear();
@@ -1114,7 +1119,7 @@ int TfmShowZones::GetDataThick(int _numFusion, int _numTube) {
 		if (SqlDBModule->queryForChart->RecordCount == 0) {
 			// MessageDlg("МНК1(T) - данных нет!", mtWarning, TMsgDlgButtons() << mbOK, NULL);
 			chartThick->Title->Clear();
-			chartThick->Title->Text->Add("Данных по дефектам МНК1 нет!");
+		  //	chartThick->Title->Text->Add("Данных по дефектам МНК1 нет!");
 			err = 11;
 			return err;
 		}
@@ -1442,7 +1447,7 @@ int TfmShowZones::GetDataThick(int _numFusion, int _numTube) {
 		sensorsDataThickMaxR.clear();
 		err = 0;
 		if (countNullsMin == TGlSettings::countZones * TGlSettings::countRecordsThick) {
-			chartThick->Title->Text->Add("Данных по дефектам МНК1 нет!");
+		  //	chartThick->Title->Text->Add("Данных по дефектам МНК1 нет!");
 			err = 11;
 			SqlDBModule->UpdIntSql("resultTubeShort", "resultT", -1, strWhere);
 			// return err;
@@ -1451,7 +1456,7 @@ int TfmShowZones::GetDataThick(int _numFusion, int _numTube) {
 			// SqlDBModule->UpdIntSql("resultTubeShort", "resultT", countBrak, strWhere);
 		}
 		if (countNullsMax == TGlSettings::countZones * TGlSettings::countRecordsThick) {
-			chartThick->Title->Text->Add("Данных по дефектам МНК1 нет!");
+		   //	chartThick->Title->Text->Add("Данных по дефектам МНК1 нет!");
 			err = 12;
 			SqlDBModule->UpdIntSql("resultTubeShort", "resultT", -1, strWhere);
 			// return err;
@@ -1960,12 +1965,15 @@ void __fastcall TfmShowZones::chartLongClickSeries(TCustomChart *Sender, TChartS
 	tmpStr += " - ";
 	tmpStr += IntToStr((ValueIndex) * 100) + " мм)";
 	tmpStr += " Макс сигнал=";
+	if(dataLong.empty())
+	{
 	if (dataLong[ValueIndex] < 0) {
 		tmpStr += "XXX";
 	}
 	else {
 		tmpStr += FloatToStrF(dataLong[ValueIndex], ffFixed, 4, 1) + "%";
 	}
+    }
 	colorMark = clFuchsia;
 	if (selectZoneL > 0 || selectZoneL < countZones) {
 		// ChartCross->Series[selectSensor]->ValueColor[selectZone] = colorMark
@@ -2246,9 +2254,12 @@ int TfmShowZones::ShowZones() {
 		fmShowZones->Caption = title;
 		title += " Типоразмер:";
 		title += pQueryShowListTubes->FieldByName("Типоразмер")->AsString;
-		// fmShowZones->queryDirectory->Close();
-		// fmShowZones->queryDirectory->SQL->Text=strSql;
-		// fmShowZones->queryDirectory->Open();
+
+        numTubeShow = pQueryShowListTubes->FieldByName("Номер трубы")->AsInteger;
+		numFusionShow = pQueryShowListTubes->FieldByName("Номер плавки")->AsInteger;
+		FillTitle(numFusionShow, numTubeShow);
+		RecalcData(numFusionShow, numTubeShow);
+
 		strOut = "Параметры контроля Верх. порог сигнала: ";
 		strOut += FloatToStr(pQueryShowListTubes->FieldByName("thresholdC1")->AsFloat);
 		strOut += "%";
@@ -2258,7 +2269,11 @@ int TfmShowZones::ShowZones() {
 		// strOut+=" Ток намагничивания:";
 		// strOut+="5";
 		strOut += " Результат:";
-		strOut += pQueryShowListTubes->FieldByName("Поперечный к.")->AsString;
+        if(0 == chartCross->BottomAxis->Maximum)
+		{
+            strOut += "Нет данных";
+		}
+		else strOut += pQueryShowListTubes->FieldByName("Поперечный к.")->AsString;
 		fmShowZones->edtCross->Text = strOut;
 		strOut = "Параметры контроля Верх. порог сигнала: ";
 		strOut += FloatToStr(pQueryShowListTubes->FieldByName("thresholdL1")->AsFloat);
@@ -2269,7 +2284,11 @@ int TfmShowZones::ShowZones() {
 		// strOut+=" Ток намагничивания:";
 		// strOut+="5";
 		strOut += " Результат:";
-		strOut += pQueryShowListTubes->FieldByName("Продольный к.")->AsString;
+		if(0 == chartLong->BottomAxis->Maximum)
+		{
+            strOut += "Нет данных";
+		}
+		else strOut += pQueryShowListTubes->FieldByName("Продольный к.")->AsString;
 		fmShowZones->edtLong->Text = strOut;
 		strOut = "Параметры контроля Номинальная толщина: ";
 		strOut += FloatToStr(pQueryShowListTubes->FieldByName("thresholdTNominal")->AsFloat);
@@ -2288,7 +2307,11 @@ int TfmShowZones::ShowZones() {
 		// strOut+=" Ток намагничивания:";
 		// strOut+="5";
 		strOut += " Результат:";
-		strOut += pQueryShowListTubes->FieldByName("К. толщины")->AsString;
+		if(0 == chartThick->BottomAxis->Maximum)
+		{
+            strOut += "Нет данных";
+		}
+		else strOut += pQueryShowListTubes->FieldByName("К. толщины")->AsString;
 		fmShowZones->edtThick->Text = strOut;
 		// TGlSettings::thresholdC1 = queryShowListTubes->FieldByName("thresholdC1")->AsFloat;
 		// TGlSettings::thresholdC2 = queryShowListTubes->FieldByName("thresholdC2")->AsFloat;
@@ -2301,10 +2324,7 @@ int TfmShowZones::ShowZones() {
 		// fmShowZones->numFusion=queryShowTubes->FieldByName("Номер плавки")->AsString;
 		// fmShowZones->numTube=queryShowTubes->FieldByName("Номер трубы")->AsString;
 		// fmShowZones->numTube = queryShowListTubes->FieldByName("numTube")->AsInteger;
-		numTubeShow = pQueryShowListTubes->FieldByName("Номер трубы")->AsInteger;
-		numFusionShow = pQueryShowListTubes->FieldByName("Номер плавки")->AsInteger;
-		FillTitle(numFusionShow, numTubeShow);
-		RecalcData(numFusionShow, numTubeShow);
+		
 
 	}
 	catch (Exception *ex) {
