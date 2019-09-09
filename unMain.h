@@ -50,6 +50,7 @@ using namespace std;
 #include "unFmReport.h"
 #include "ThreadWork.h"
 #include "unFmModifyRecord.h"
+#include <map>
 
 // ---------------------------------------------------------------------------
 class TfmMain : public TForm {
@@ -189,7 +190,12 @@ __published: // IDE-managed Components
 
 private: // User declarations
 	// считаем прошлые установки
-	// TGlSettings* glSettings;
+	typedef   void(TfmMain::*TcheckPros)(int, int);
+	std::map<AnsiString, TcheckPros>checkPros;
+
+	void InsertCrossRow(int, int);
+	void InsertLongRow(int, int);
+	void InsertThickRow(int, int);
 
 	int LoadInitSettings();
 	int ReLoadInitSettings();

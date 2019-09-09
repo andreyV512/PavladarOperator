@@ -707,15 +707,7 @@ int TfmShowZones::GetDataCross(int _numFusion, int _numTube) {
 		SqlDBModule->queryForChart->Parameters->ParamByName("pnumTube")->Value = _numTube;
 		SqlDBModule->queryForChart->Parameters->ParamByName("pnumFusion")->Value = _numFusion;
 		SqlDBModule->queryForChart->Open();
-		if (SqlDBModule->queryForChart->RecordCount == 0) {
-		   //	MessageDlg("Данных по дефектам МНК2 нет!", mtWarning, TMsgDlgButtons() << mbOK, NULL);
-			//chartCross->Title->Text->Add("Данных по дефектам МНК2(C) нет!");
-			err = 0;
-			return err;
-		}
-		else {
-			//
-		}
+
 		// подготовим вектор
 		for (int i = 0; i < sensorsDataCross.size(); i++) {
 			sensorsDataCross[i].clear();
@@ -727,6 +719,15 @@ int TfmShowZones::GetDataCross(int _numFusion, int _numTube) {
 		vecMaxCh.clear();
 		for (int i = 0; i < TGlSettings::countSensorsCross; i++) {
 			vecMaxCh.push_back(0);
+		}
+        if (SqlDBModule->queryForChart->RecordCount == 0) {
+		   //	MessageDlg("Данных по дефектам МНК2 нет!", mtWarning, TMsgDlgButtons() << mbOK, NULL);
+			//chartCross->Title->Text->Add("Данных по дефектам МНК2(C) нет!");
+			err = 0;
+            chartCross->Series[0]->Clear();
+		chartCross->Series[1]->Clear();
+		chartCross->Series[2]->Clear();
+			return err;
 		}
 		// заберем данные по поперечнику
 		SqlDBModule->queryForChart->First();
@@ -894,14 +895,7 @@ int TfmShowZones::GetDataLong(int _numFusion, int _numTube) {
 		SqlDBModule->queryForChart->Parameters->ParamByName("pnumTube")->Value = _numTube;
 		SqlDBModule->queryForChart->Parameters->ParamByName("pnumFusion")->Value = _numFusion;
 		SqlDBModule->queryForChart->Open();
-		if (SqlDBModule->queryForChart->RecordCount == 0) {
-		 //	MessageDlg("Данных по МНК3 нет!", mtWarning, TMsgDlgButtons() << mbOK, NULL);
-		   //	chartCross->Title->Text->Add("Данных по дефектам МНК3 нет!");
-			return 0;
-		}
-		else {
-			//
-		}
+
 		SqlDBModule->queryForChart->First();
 		// подготовим вектор
 		for (int i = 0; i < sensorsDataLong.size(); i++) {
@@ -914,6 +908,14 @@ int TfmShowZones::GetDataLong(int _numFusion, int _numTube) {
 		vecMaxCh.clear();
 		for (int i = 0; i < TGlSettings::countSensorsLong; i++) {
 			vecMaxCh.push_back(0);
+		}
+        if (SqlDBModule->queryForChart->RecordCount == 0) {
+		 //	MessageDlg("Данных по МНК3 нет!", mtWarning, TMsgDlgButtons() << mbOK, NULL);
+		   //	chartCross->Title->Text->Add("Данных по дефектам МНК3 нет!");
+           chartLong->Series[0]->Clear();
+		chartLong->Series[1]->Clear();
+		chartLong->Series[2]->Clear();
+			return 0;
 		}
 		// заберем данные по продольнику
 		SqlDBModule->queryForChart->First();
@@ -1116,16 +1118,7 @@ int TfmShowZones::GetDataThick(int _numFusion, int _numTube) {
 		SqlDBModule->queryForChart->Open();
 		// ---------------- min
 		SqlDBModule->queryForChart->First();
-		if (SqlDBModule->queryForChart->RecordCount == 0) {
-			// MessageDlg("МНК1(T) - данных нет!", mtWarning, TMsgDlgButtons() << mbOK, NULL);
-			chartThick->Title->Clear();
-		  //	chartThick->Title->Text->Add("Данных по дефектам МНК1 нет!");
-			err = 11;
-			return err;
-		}
-		else {
-			//
-		}
+
 		// подготовим вектор
         		// ---
 		for (int i = 0; i < sensorsDataThickMin.size(); i++) {
@@ -1151,10 +1144,17 @@ int TfmShowZones::GetDataThick(int _numFusion, int _numTube) {
 		for (int i = 0; i < TGlSettings::countRecordsThick; i++) {
 			vecMaxChR.push_back(0);
 		}
-		// for (int i = 0;i < 2; i++) {
-		// vector<double> vecMin;
-		// dataThickMin[i].push_back(vecMin);
-		// }
+        if (SqlDBModule->queryForChart->RecordCount == 0) {
+			// MessageDlg("МНК1(T) - данных нет!", mtWarning, TMsgDlgButtons() << mbOK, NULL);
+		  //	chartThick->Title->Clear();
+		  //	chartThick->Title->Text->Add("Данных по дефектам МНК1 нет!");
+			err = 11;
+            chartThick->Series[0]->Clear();
+		chartThick->Series[2]->Clear();
+			return err;
+		}
+
+
 		for (int i = 0; i < 2; i++) {
 			vector<double>vekMin;
 			dataThickMin.push_back(vekMin);
@@ -2181,9 +2181,12 @@ int TfmShowZones::FillTitle(int _numFuzion, int _numTube) {
 	strSql += ",T4.SopName as 'Настр. СОП' ";
 	strSql += ", T5.steelGradeName as 'Марка стали',  T7.workShiftName as 'Смена'";
 	strSql += ",T2.operatorName as 'Оператор' ";
-	strSql += ",(case T1.resultT when 0 then 'Годно' when 1 then 'ДЕФЕКТ' else 'Нет данных' end) as 'К. Толщины' ";
-	strSql += ",(case T1.resultC when 0 then 'Годно' when 1 then 'ДЕФЕКТ' else 'Нет данных' end) as 'Поперечный к.' ";
-	strSql += ",(case T1.resultL when 0 then 'Годно' when 1 then 'ДЕФЕКТ' else 'Нет данных' end) as 'Продольный к.' ";
+	strSql += ",(case (SELECT count(*) FROM resultThick where numFusion=T1.numFusion and numTube=T1.numTube) when 0 then 'Нет данных' else"\
+	" case T1.resultT when 0 then 'Годно' when -1 then 'Нет данных' else 'ДЕФЕКТ' end end) as 'К. Толщины' ";
+	strSql += ",(case (SELECT count(*) FROM resultCross where numFusion=T1.numFusion and numTube=T1.numTube) when 0 then 'Нет данных' else"\
+	" case T1.resultC when 0 then 'Годно' when -1 then 'Нет данных' else 'ДЕФЕКТ' end end) as 'Поперечный к.' ";
+	strSql += ",(case (SELECT count(*) FROM resultLong where numFusion=T1.numFusion and numTube=T1.numTube) when 0 then 'Нет данных' else"\
+	" case T1.resultL when 0 then 'Годно' when -1 then 'Нет данных' else 'ДЕФЕКТ' end end) as 'Продольный к.' ";
 	strSql += ",T1.lengthTube as 'Длина, мм' , T1.speedTube as 'Скорость,м/с',T1.speedRound as 'МНК3 об/мин' ";
 	// strSql += "	,T1.thresholdC1,T1.thresholdC2,T1.thresholdL1,T1.thresholdL2,thresholdTUp,thresholdTDown,thresholdTNominal";
 	// strSql +=
@@ -2271,7 +2274,7 @@ int TfmShowZones::ShowZones() {
 		strOut += " Результат:";
         if(0 == chartCross->BottomAxis->Maximum)
 		{
-            strOut += "Нет данных";
+			strOut += "Нет данных";
 		}
 		else strOut += pQueryShowListTubes->FieldByName("Поперечный к.")->AsString;
 		fmShowZones->edtCross->Text = strOut;
@@ -2286,7 +2289,7 @@ int TfmShowZones::ShowZones() {
 		strOut += " Результат:";
 		if(0 == chartLong->BottomAxis->Maximum)
 		{
-            strOut += "Нет данных";
+			strOut += "Нет данных";
 		}
 		else strOut += pQueryShowListTubes->FieldByName("Продольный к.")->AsString;
 		fmShowZones->edtLong->Text = strOut;
@@ -2309,7 +2312,7 @@ int TfmShowZones::ShowZones() {
 		strOut += " Результат:";
 		if(0 == chartThick->BottomAxis->Maximum)
 		{
-            strOut += "Нет данных";
+			strOut += "Нет данных";
 		}
 		else strOut += pQueryShowListTubes->FieldByName("К. толщины")->AsString;
 		fmShowZones->edtThick->Text = strOut;
