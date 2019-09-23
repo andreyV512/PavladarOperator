@@ -291,14 +291,14 @@ double TSqlDBModule::GetDoubleFromFunctionSql(AnsiString _strSql, int &_err) {
 }
 
 int TSqlDBModule::GetIntFromSql(AnsiString _strSql) {
-	int result = -1;
+	int result = 0;
 	try {
 		if (!ADOConnectionDB->Connected) {
 			ADOConnectionDB->Open();
 		}
-		else {
-			result = -3;
-		};
+	 //	else {
+	   //		result = -3;
+	  //	};
 		if (ADOQueryDB->Active) {
 			ADOQueryDB->Close();
 		}
@@ -309,7 +309,7 @@ int TSqlDBModule::GetIntFromSql(AnsiString _strSql) {
 		ADOQueryDB->Close();
 	}
 	catch (Exception *ex) {
-		result = -2;
+	 //	result = -2;
 		TLog::ErrFullSaveLog(ex);
 		MessageDlg(ex->Message, mtError, TMsgDlgButtons() << mbOK, NULL);
 	}

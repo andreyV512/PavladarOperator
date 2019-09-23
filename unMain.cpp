@@ -218,9 +218,6 @@ int TfmMain::CreateTables(int _numFusion, int _numTube) {
 	catch (Exception *ex) {
 		err = -1;
 		TLog::ErrFullSaveLog(ex);
-		// AnsiString msg
-		// programSettings.colorMSG = programSettings.colorBrak;
-		// TExtFunction::UpdateStatusBar(programSettings.gsStatusBar, strStatus, _msg, programSettings.colorMSG);
 		MessageDlg(ex->Message, mtError, TMsgDlgButtons() << mbOK, NULL);
 	}
 	return err;
@@ -229,7 +226,6 @@ int TfmMain::CreateTables(int _numFusion, int _numTube) {
 void __fastcall TfmMain::bbtReadyClick(TObject *Sender) {
 	int err = 0;
 	int rec_id = 0;
-	int rc = 0;
 	AnsiString strSql = "";
 	AnsiString strSqlWhere = "";
 	try {
@@ -241,14 +237,7 @@ void __fastcall TfmMain::bbtReadyClick(TObject *Sender) {
 		else {
 
 		}
-		strSql = "select TOP 1 numFusion as F1 from resultTubeShort where numTube>0 and numFusion=" + IntToStr(TGlSettings::currFusion);
-		rc = SqlDBModule->GetIntFromSql(strSql);
-		////serg 5
-		if (rc > 0) { // MessageDlg(errorText,mtError,mbAbortRetryIgnore,0);
-			// fmMessage = new TfmMessage(NULL, _strMsg, _color);
-			// fmMessage->ShowModal();
-			// delete fmMessage;
-			// if (TGlSettings::repeatControl == 1) {
+
 			if (menuRepeatControl->Checked) {
 				if (MessageDlg("ВКЛЮЧЕН РЕЖИМ ПОВТОРНОГО КОНТРОЛЯ!\n ПРОДОЛЖИТЬ?", mtWarning, TMsgDlgButtons() << mbOK << mbCancel,
 					0) == mrOk) {
@@ -258,9 +247,7 @@ void __fastcall TfmMain::bbtReadyClick(TObject *Sender) {
 					return;
 				}
 			}
-			else {
-				//
-			}
+
 			if (menuSOP->Checked) {
 				if (MessageDlg("ВКЛЮЧЕН РЕЖИМ  СОП!\n ПРОДОЛЖИТЬ?", mtWarning, TMsgDlgButtons() << mbOK << mbCancel, 0) == mrOk) {
 					//
@@ -276,60 +263,24 @@ void __fastcall TfmMain::bbtReadyClick(TObject *Sender) {
 				// if (TGlSettings::isSOP == 1) {
 				if (menuSOP->Checked) {
 					// СОП
-					strSql = "select max(numTube) as F1 from resultTubeShort where numTube>0 and isSOP=1 and numFusion=" +
+					strSql = "select max(numTube) as F1 from resultTubeShort where numTube>5000 and numFusion=" +
 						IntToStr(TGlSettings::currFusion);
 					TGlSettings::numTube = SqlDBModule->GetIntFromSql(strSql);
-					rc = TGlSettings::numTube;
+			  //		rc = TGlSettings::numTube;
 					if (TGlSettings::numTube == 0) {
-						TGlSettings::numTube += 5001;
-					}
-					else {
-						//
-					}
-					if (TGlSettings::numTube == 1) {
-						TGlSettings::numTube += 5000;
-					}
-					else {
-						//
+						TGlSettings::numTube = 5001;
 					}
 				}
 				else {
 					//
-					strSql = "select max(numTube) as F1 from resultTubeShort where numTube>0 and isSOP=0 and numFusion=" +
+					strSql = "select max(numTube) as F1 from resultTubeShort where numTube>0 and numTube < 5000 and numFusion=" +
 						IntToStr(TGlSettings::currFusion);
 					TGlSettings::numTube = SqlDBModule->GetIntFromSql(strSql);
 				}
-				rc = TGlSettings::numTube;
 				if (TGlSettings::numTube == 0) {
 					TGlSettings::numTube++;
 				}
-				else {
-					//
-				}
-
 			}
-			else {
-				return;
-			}
-		}
-		else {
-			// strTstFuz2=strTstFuz1;
-			TGlSettings::numTube = 1;
-			int aa = TGlSettings::numTube;
-			// if (TGlSettings::numTube == 1 && TGlSettings::isSOP==1) {
-			if (TGlSettings::numTube == 1 && menuSOP->Checked) {
-				// СОП
-				TGlSettings::numTube += 5000;
-			}
-			else {
-				//
-			}
-			TGlSettings::countBrakC = 0;
-			TGlSettings::countBrakL = 0;
-			TGlSettings::countBrakT = 0;
-			// TGlSettings::countBrakAll=0;
-
-		}
 		SqlDBModule->UpdBoolSql("flags", "isDataSendCompleet", 0, "isActual=1");
 		TGlSettings::thresholdTNominal = SqlDBModule->GetFloatFieldSQL("tubesTypeSize", "tubeThick",
 			"isActive = 1 and rec_id=" + IntToStr(TGlSettings::indTypeSize), 1, err);
@@ -410,30 +361,14 @@ void __fastcall TfmMain::bbtReadyClick(TObject *Sender) {
 
 void __fastcall TfmMain::bbtStopClick(TObject *Sender) {
 	int err = 0;
-	//if (errT > 0 && errC > 0 && errL > 0) {
-		//
-   //	}
-  //	else {
 		if (errT > 0 || errC > 0 || errL > 0) {
-	   //		if (MessageDlg("Оставляем трубу без данных?", mtWarning, TMsgDlgButtons() << mbYes << mbNo, NULL) == mrYes) {
-			//	TGlSettings::numTube++;
-			 //	err = CreateTables(TGlSettings::currFusion, TGlSettings::numTube++);
-			  //	lbxInfo->AddItem("Создаем заготовку трубы " + IntToStr(TGlSettings::numTube), NULL);
 				Application->ProcessMessages();
 				TGlSettings::isWorkState = false;
 				lbxInfo->AddItem("Отработали останов", NULL);
 				SqlDBModule->UpdIntSql(" flags ", " isReady ", 0, NULL);
 				Application->ProcessMessages();
 			}
-		   //	else {
-			 //	continueWait = true;
-			   //	secYearBeginWait = SecondOfTheYear(Now());
-			   //	return;
-				// SqlDBModule->UpdIntSql(" flags ", " isReady ", 0, NULL);
-				// lbxInfo->AddItem("isReady=0", NULL);
-			//}
-	//	}
-   //	}
+
 	PanelTopChoice->Enabled = true;
 	bbtReady->Enabled = false;
 	bbtStop->Enabled = false;
@@ -449,22 +384,6 @@ void __fastcall TfmMain::bbtStopClick(TObject *Sender) {
 	TGlSettings::isWorkState = false;
 	SqlDBModule->UpdBoolSql("flags", "isWorkState", 0, "isActual=1");
 	lbxInfo->AddItem("isWorkState=0", NULL);
-	// if (pThreadWork) {
-	// pThreadWork->isWork = false;
-	// }
-	// else {
-	// //
-	// }
-	// Sleep(200);
-	// if (pThreadWork) {
-	// pThreadWork->Terminate();
-	// pThreadWork->WaitFor();
-	// delete pThreadWork;
-	// pThreadWork = NULL;
-	// }
-	// else {
-	// //
-	// }
 
 	TimerUpdateState->Enabled = false;
 	secYearBeginWait = SecondOfTheYear(Now());
@@ -1563,42 +1482,6 @@ void __fastcall TfmMain::TimerUpdateStateTimer(TObject *Sender) {
 					continueWait = true;
 				}
 				LongWord secNowWait = SecondOfTheYear(Now());
-				// if (secNowWait - secYearBeginWait > 300) {
-				// if (MessageDlg("Ждали 5 минут, данных нет, \n ожидаем еще?", mtWarning, TMsgDlgButtons() << mbYes << mbNo,
-				// NULL) == mrYes) {
-				// continueWait = true;
-				// secYearBeginWait = SecondOfTheYear(Now());
-				// // SqlDBModule->UpdIntSql(" flags ", " isReady ", 0, NULL);
-				// // lbxInfo->AddItem("Сброс готовности по повтору ожидания", NULL);
-				// // Application->ProcessMessages();
-				// // lbxInfo->AddItem("isReady=0", NULL);
-				// }
-				// else {
-				// continueWait = false;
-				// if (MessageDlg("Оставляем трубу без данных и создаем новую?", mtWarning, TMsgDlgButtons() << mbYes << mbNo,
-				// NULL) == mrYes) {
-				// TGlSettings::numTube++;
-				// err = CreateTables(TGlSettings::currFusion, TGlSettings::numTube);
-				// lbxInfo->AddItem("Создаем заготовку трубы " + IntToStr(TGlSettings::numTube), NULL);
-				// Application->ProcessMessages();
-				// TGlSettings::isWorkState = false;
-				// bbtStopClick(bbtStop);
-				// lbxInfo->AddItem("Отработали останов", NULL);
-				// Application->ProcessMessages();
-				// }
-				// else {
-				// continueWait = true;
-				// secYearBeginWait = SecondOfTheYear(Now());
-				// // SqlDBModule->UpdIntSql(" flags ", " isReady ", 0, NULL);
-				// // lbxInfo->AddItem("isReady=0", NULL);
-				// }
-				//
-				// }
-				// }
-				// else {
-				// // TGlSettings::isWorkState=false;
-				// // bbtStopClick(bbtStop);
-				// }
 			}
 			else if(bT || bC || bL){
 				pnlMsg->Caption = "ПОЛУЧИЛИ ДАННЫЕ ПО ТРУБЕ № " + IntToStr(TGlSettings::numTube);
