@@ -1256,6 +1256,10 @@ void __fastcall TfmMain::menuExtInfoClick(TObject *Sender) {
 }
 
 // ---------------------------------------------------------------------------
+class __store_base__: public TfmMain
+{
+
+};
 void __fastcall TfmMain::TimerUpdateStateTimer(TObject *Sender) {
 	int err = 0;
 	TimerUpdateState->Enabled = false;
@@ -1270,9 +1274,6 @@ void __fastcall TfmMain::TimerUpdateStateTimer(TObject *Sender) {
 	errC = 0;
 	errL = 0;
 	try {
-		// else {
-		// PanelTrans->Color = RGB(200, 100, 100);
-		// }
 		strTmp = "ÎÆÈÄÀÅÌ ÄÀÍÍÛÅ ÏÎ ";
 		strTmp += "ÒĞÓÁÅ ¹ ";
 		strTmp += IntToStr(TGlSettings::numTube);
@@ -1284,10 +1285,7 @@ void __fastcall TfmMain::TimerUpdateStateTimer(TObject *Sender) {
 			lbxInfo->Clear();
 
 		}
-		else {
-			//
-		}
-		// ------------------
+		
 		if (TGlSettings::isWorkState) {
 			bbtMode->Font->Color = clGreen;
 		}
@@ -1295,36 +1293,19 @@ void __fastcall TfmMain::TimerUpdateStateTimer(TObject *Sender) {
 			bbtMode->Font->Color = clBlack;
 		}
 		// ----------------------
-		// if (TGlSettings::isWorkState && TGlSettings::isSOP == 1) {
 		if (TGlSettings::isWorkState && menuSOP->Checked) {
 			bbtMode->Font->Color = clBlue;
 			bbtMode->Caption = "ĞÅÆÈÌ ÑÎÏ (òèïîğàçìåğ:" + IntToStr(TGlSettings::indTypeSize) + ")";
 		}
-		else {
-			// pbbtMode->Font->Color = clGreen;
-		}
-		// -----------------------------------
-		// if (menuRepeatControl->Checked){
-		// if (TGlSettings::isWorkState && TGlSettings::repeatControl) {
 		if (TGlSettings::isWorkState && menuRepeatControl->Checked) {
 			bbtMode->Font->Color = clRed;
 			bbtMode->Caption = "ÏÎÂÒÎĞ ÊÎÍÒĞÎËß (òèïîğàçìåğ:" + IntToStr(TGlSettings::indTypeSize) + ")";
-		}
-		else {
-			// pbbtMode->Font->Color = clGreen;
 		}
 		if (TGlSettings::isWorkState && menuRepeatControl->Checked && menuRepeatControl->Checked) {
 			bbtMode->Font->Color = clRed;
 			bbtMode->Caption = "ÏÎÂÒÎĞ ÊÎÍÒĞÎËß ÑÎÏ(òèïîğàçìåğ:" + IntToStr(TGlSettings::indTypeSize) + ")";
 		}
-		else {
-			// pbbtMode->Font->Color = clGreen;
-		}
-		// serg55
-		// TGlSettings::numTube=136;
-		// isDataSendCompleet=true;
-		// TGlSettings::isWorkState=true;
-		// ---------------
+		
 		isDataSendCompleet = SqlDBModule->GetBoolFieldSQL("flags", "isDataSendCompleet", "isActual=1", 0, err);
 		if (TGlSettings::isWorkState || menuRepeatControl->Checked) {
 			// if (isDataSendCompleet && (TGlSettings::isWorkState || menuRepeatControl->Checked)) {
@@ -1549,24 +1530,12 @@ void __fastcall TfmMain::TimerUpdateStateTimer(TObject *Sender) {
 					// menuRepeatControl->Checked = false;
 					return;
 				}
-				else {
-
-				}
+				
 				secYearBeginWait = SecondOfTheYear(Now());
 			}
 			err = CheckBrakCount(TGlSettings::currFusion);
 		}
-		else {
-			//
-		}
-		// serg55
-		// if (menuSOP->Checked || menuRepeatControl->Checked) {
-		// bbtStopClick(bbtStop);
-		// return;
-		// }
-		// else {
-		//
-		// }
+	
 		TimerUpdateState->Enabled = true;
 		err = 0;
 	}
