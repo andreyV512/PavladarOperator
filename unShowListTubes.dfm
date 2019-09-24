@@ -162,7 +162,7 @@ object fmShowListTubes: TfmShowListTubes
       object Label4: TLabel
         Left = 1
         Top = 17
-        Width = 51
+        Width = 49
         Height = 16
         Align = alTop
         Alignment = taCenter
@@ -173,12 +173,11 @@ object fmShowListTubes: TfmShowListTubes
         Font.Name = 'Tahoma'
         Font.Style = []
         ParentFont = False
-        ExplicitWidth = 49
       end
       object Label5: TLabel
         Left = 1
         Top = 1
-        Width = 51
+        Width = 50
         Height = 16
         Align = alTop
         Alignment = taCenter
@@ -189,7 +188,6 @@ object fmShowListTubes: TfmShowListTubes
         Font.Name = 'Tahoma'
         Font.Style = []
         ParentFont = False
-        ExplicitWidth = 50
       end
     end
     object grbParams: TGroupBox

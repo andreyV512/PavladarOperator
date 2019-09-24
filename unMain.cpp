@@ -209,9 +209,6 @@ int TfmMain::CreateTables(int _numFusion, int _numTube) {
 			InsertThickRow(_numTube, _numFusion);
 
 		}
-		else {
-			// труба уже есть
-		}
 		err = 0;
 		// ----------------
 	}
@@ -276,7 +273,36 @@ void __fastcall TfmMain::bbtReadyClick(TObject *Sender) {
 					strSql = "select max(numTube) as F1 from resultTubeShort where numTube>0 and numTube < 5000 and numFusion=" +
 						IntToStr(TGlSettings::currFusion);
 					TGlSettings::numTube = SqlDBModule->GetIntFromSql(strSql);
+					UnicodeString NewString = IntToStr(TGlSettings::numTube);
+
+                    AnsiString mess = "Номер трубы может быть больше 1 и меньше " + NewString + ":";
+					if (InputQuery("Текущий номер трубы", mess.c_str(), NewString)) {
+						int n = StrToInt(NewString);
+                        NewString = "";
+						if(n < TGlSettings::numTube)
+						{
+							if (InputQuery("Запрос пароля", "Введите пароль:", NewString)) {
+							if (NewString != TGlSettings::passwordEdit) {
+								MessageDlg("Неверный пароль!", mtError, TMsgDlgButtons() << mbOK, NULL);
+								return;
+							 }
+
+							TGlSettings::numTube = n;
+							AnsiString query = "DELETE FROM resultTubeShort WHERE numTube >=";
+							query += IntToStr(TGlSettings::numTube);
+							query += "and numFusion=";
+							query += IntToStr(TGlSettings::currFusion);
+
+							SqlDBModule->queryQuick->Close();
+                            SqlDBModule->queryQuick->SQL->Text = query;
+							SqlDBModule->queryQuick->ExecSQL();
+							SqlDBModule->queryQuick->Close();
+							CreateTables(TGlSettings::currFusion, TGlSettings::numTube);
+						}
+					}
+					 }
 				}
+
 				if (TGlSettings::numTube == 0) {
 					TGlSettings::numTube++;
 				}

@@ -143,49 +143,6 @@ void __fastcall TfmShowListTubes::FormCreate(TObject *Sender) {
 	AnsiString strSqlF = "";
 	AnsiString strSql = "";
 	try {
-	/*
-		strSqlGlobal = " SELECT T1.dtmCreate as 'Дата и время контроля'";
-		strSqlGlobal += ",T1.numFusion as 'Номер плавки'";
-		strSqlGlobal += ", T1.numTube as 'Номер трубы' ";
-		strSqlGlobal += ", T3.normDocName as 'Нормативный документ'";
-		strSqlGlobal += ",T4.SopName as 'Настр. СОП' ";
-		strSqlGlobal += ", T5.steelGradeName as 'Марка стали', T6.typeSizeName as 'Типоразмер', T7.workShiftName as 'Смена'";
-		strSqlGlobal += ",T2.operatorName as 'Оператор' ";
-		strSqlGlobal += ",(case T1.resultT when 0 then 'Годно' when -1 then 'Нет данных' else 'ДЕФЕКТ' end) as 'К. толщины' ";
-		strSqlGlobal += ",(case T1.resultC when 0 then 'Годно' when -1 then 'Нет данных' else 'ДЕФЕКТ' end) as 'Поперечный к.' ";
-		strSqlGlobal += ",(case T1.resultL when 0 then 'Годно' when -1 then 'Нет данных' else 'ДЕФЕКТ' end) as 'Продольный к.' ";
-		strSqlGlobal += ",T1.lengthTube as 'Длина трубы',T1.speedTube as 'Скорость' ";
-		strSqlGlobal += ",(case T1.isSOP when 0 then 'Нет' when 1 then 'Да' else 'Неизвестно' end) as 'СОП' ";
-		strSqlGlobal += " ,T1.thresholdC1,T1.thresholdC2,T1.thresholdL1,T1.thresholdL2,thresholdTUp,thresholdTDown,thresholdTNominal";
-		strSqlGlobal += ",T1.pathFileNameThick as 'Файл МНК1'";
-		strSqlGlobal += ",T1.pathFileNameCross as 'Файл МНК2'";
-		strSqlGlobal += ",T1.pathFileNameLong as 'Файл МНК3' ";
-		strSqlGlobal +=
-			" ,T1.indOperatorName,T1.indNormDocName,T1.indSopName,T1.indSteelGradeName,T1.indWorkShiftName,T1.indTypeSize,T1.dtmCreate ";
-		strSqlGlobal += "	,YEAR(T1.dtmCreate) as Y1, MONTH(T1.dtmCreate) as M1 , DATEPART( dayofyear , T1.dtmCreate ) as DY1 ";
-		strSqlGlobal += "	,YEAR(T1.dtmCreate) as Y2, MONTH(T1.dtmCreate) as M2 , DATEPART( dayofyear , T1.dtmCreate ) as DY2 ";
-		strSqlGlobal += ",T1.numFusion";
-		strSqlGlobal += ",T1.resultT";
-		strSqlGlobal += ",T1.resultC";
-		strSqlGlobal += ",T1.resultL";
-		strSqlGlobal += ",T1.isSOP";
-		strSqlGlobal += " FROM resultTubeShort T1 ";
-		strSqlGlobal += " join operators T2 on(T1.indOperatorName = T2.rec_id)";
-		strSqlGlobal += " join normDocs T3 on(T1.indNormDocName = T3.rec_id)";
-		strSqlGlobal += " join Sops T4 on(T1.indSopName = T4.rec_id)";
-		strSqlGlobal += " join steelGrades T5 on(T1.indSteelGradeName = T5.rec_id)";
-		strSqlGlobal += " join tubesTypeSize T6 on(T1.indTypeSize = T6.rec_id)";
-		strSqlGlobal += " join workShifts T7 on(T1.indWorkShiftName = T7.rec_id)";
-		strSqlGlobal += " where numTube>0 and T1.isEmpty=0 and T1.numFusion=:pnumFusion  and resultT<>-100 ";
-		// strSqlGlobal += " where T1.isEmpty=0";
-
-
-
-		// strSql += " join resultLong T8 on(T1.numFusion = T8.numFusion and T1.numTube = T8.numTube and T1.sensorNum = T8.sensorNum)";
-		// strSql += " join resultThick T9 on(T1.numFusion = T9.numFusion and T1.numTube = T9.numTube and T1.sensorNum = T9.sensorNum)";
-		strSqlGlobal += " order by  T1.numFusion, T1.numTube ";
-		*/
-	   //	/*
   strSqlGlobal =
     "SELECT T1.dtmCreate as 'Дата и время контроля'"\
 	",T1.numFusion as 'Номер плавки'"\
