@@ -188,7 +188,7 @@ __published: // IDE-managed Components
 	void __fastcall menuViewLogClick(TObject *Sender);
 	void __fastcall menuSetReadySecClick(TObject *Sender);
 
-private: // User declarations
+protected: // User declarations
 	// считаем прошлые установки
 	typedef   void(TfmMain::*TcheckPros)(int, int);
 	std::map<AnsiString, TcheckPros>checkPros;

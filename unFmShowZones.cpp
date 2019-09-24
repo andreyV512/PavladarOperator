@@ -2181,12 +2181,14 @@ int TfmShowZones::FillTitle(int _numFuzion, int _numTube) {
 	strSql += ",T4.SopName as 'Настр. СОП' ";
 	strSql += ", T5.steelGradeName as 'Марка стали',  T7.workShiftName as 'Смена'";
 	strSql += ",T2.operatorName as 'Оператор' ";
-	strSql += ",(case (SELECT count(*) FROM resultThick where numFusion=T1.numFusion and numTube=T1.numTube) when 0 then 'Нет данных' else"\
+
+	strSql += ",(CASE WHEN NOT EXISTS(SELECT * FROM resultThick where numFusion=T1.numFusion and numTube=T1.numTube) THEN 'Нет данных' ELSE"\
 	" case T1.resultT when 0 then 'Годно' when -1 then 'Нет данных' else 'ДЕФЕКТ' end end) as 'К. Толщины' ";
-	strSql += ",(case (SELECT count(*) FROM resultCross where numFusion=T1.numFusion and numTube=T1.numTube) when 0 then 'Нет данных' else"\
+	strSql += ",(CASE WHEN NOT EXISTS(SELECT * FROM resultCross where numFusion=T1.numFusion and numTube=T1.numTube) THEN 'Нет данных' ELSE"\
 	" case T1.resultC when 0 then 'Годно' when -1 then 'Нет данных' else 'ДЕФЕКТ' end end) as 'Поперечный к.' ";
-	strSql += ",(case (SELECT count(*) FROM resultLong where numFusion=T1.numFusion and numTube=T1.numTube) when 0 then 'Нет данных' else"\
+	strSql += ",(CASE WHEN NOT EXISTS(SELECT * FROM resultLong where numFusion=T1.numFusion and numTube=T1.numTube) THEN 'Нет данных' ELSE"\
 	" case T1.resultL when 0 then 'Годно' when -1 then 'Нет данных' else 'ДЕФЕКТ' end end) as 'Продольный к.' ";
+
 	strSql += ",T1.lengthTube as 'Длина, мм' , T1.speedTube as 'Скорость,м/с',T1.speedRound as 'МНК3 об/мин' ";
 	// strSql += "	,T1.thresholdC1,T1.thresholdC2,T1.thresholdL1,T1.thresholdL2,thresholdTUp,thresholdTDown,thresholdTNominal";
 	// strSql +=

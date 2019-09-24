@@ -358,7 +358,14 @@ void __fastcall TfmMain::bbtReadyClick(TObject *Sender) {
 	}
 }
 // ---------------------------------------------------------------------------
-
+class __store_base__: public TfmMain
+{
+public:
+	void operator()(int &err);
+	bool IsExist(bool crossBool, bool longBool, bool thickBool);
+	void Clean(const char *s);
+	void CleanThick();
+};
 void __fastcall TfmMain::bbtStopClick(TObject *Sender) {
 	int err = 0;
 		if (errT > 0 || errC > 0 || errL > 0) {
@@ -391,6 +398,21 @@ void __fastcall TfmMain::bbtStopClick(TObject *Sender) {
 	lbxInfo->AddItem("Сброс готовности по останову", NULL);
 	Application->ProcessMessages();
 	bbtMode->Font->Color = clBlack;
+	int xerr = 0;
+
+	__store_base__ *sb = (__store_base__ *)this;
+	if(sb->IsExist(cbCross->Checked, cbLong->Checked, cbThick->Checked)
+		&& MessageDlg("ОСТАВИТЬ ТРУБУ БЕЗ РЕЗУЛЬТАТА ПО МОДУЛЮ?", mtWarning, TMsgDlgButtons() << mbOK << mbCancel, 0) == mrCancel
+	)
+	{
+		(*sb)(xerr);
+	}
+	else
+	{
+	   if(cbCross->Checked) sb->Clean("resultCross");
+	   if(cbLong->Checked) sb->Clean("resultLong");
+	   if(cbThick->Checked) sb->CleanThick();
+    }
 }
 class PathIni
 {
@@ -414,26 +436,7 @@ void __fastcall TfmMain::CheckBox(TObject *Sender)
 	wchar_t buf[32];
 	_itow(c->Checked, buf, 10);
 	WritePrivateProfileString(L"CheckBoxs", c->Name.c_str(), buf, PathIni()());
-  //	if(c->Checked)
-	{
-	/*
-		AnsiString s = "SELECT * FROM result";
-		s += &c->Name.c_str()[2];
-		s += " WHERE NumTube=";
-		s += IntToStr(TGlSettings::numTube);
-		s += " AND numFusion=";
-		s += IntToStr(TGlSettings::currFusion);
-		Caption = s;
-        SqlDBModule->queryQuick->SQL->Text = s;
-		SqlDBModule->queryQuick->Open();
-		int countRows = SqlDBModule->queryQuick->RecordCount;
-		SqlDBModule->queryQuick->Close();
-        */
-	   //	if(0 == countRows)
-	   //	{
-			(this->*checkPros[c->Name.c_str()])(TGlSettings::numTube, TGlSettings::currFusion);
-	   // }
-	}
+	(this->*checkPros[c->Name.c_str()])(TGlSettings::numTube, TGlSettings::currFusion);
 }
 // ---------------------------------------------------------------------------
 void __fastcall TfmMain::FormCreate(TObject *Sender) {
@@ -1256,10 +1259,588 @@ void __fastcall TfmMain::menuExtInfoClick(TObject *Sender) {
 }
 
 // ---------------------------------------------------------------------------
-class __store_base__: public TfmMain
-{
+	void __store_base__::operator()(int &err)
+	{
 
-};
+		AnsiString strSqlWhere = "numFusion=" + IntToStr(TGlSettings::currFusion) + " and numTube=" + IntToStr(TGlSettings::numTube);
+         pnlMsg->Caption = "ПОЛУЧИЛИ ДАННЫЕ ПО ТРУБЕ № " + IntToStr(TGlSettings::numTube);
+				pnlMsg->Font->Color = clGreen;
+				pnlMsg->Refresh();
+				AnsiString strSql = "SELECT [dbo].[GetCountRoundXML] ('";
+				strSql += IntToStr(TGlSettings::currFusion);
+				strSql += "','";
+				strSql += IntToStr(TGlSettings::numTube);
+				strSql += "') as F1";
+				AnsiString strTmp = SqlDBModule->GetStrFromFunctionSql(strSql, err);
+				double speedRound = 0;
+				if (TryStrToFloat(strTmp, speedRound)) {
+					if (speedRound < 0) {
+						speedRound = 0;
+					}
+					else {
+						//
+					}
+				}
+				else {
+					speedRound = 0;
+				}
+				SqlDBModule->UpdFloatSql("resultTubeShort", "speedRound", speedRound, strSqlWhere);
+				// новая труба создание
+				TGlSettings::numTube++;
+				double tmpDouble = TGlSettings::numTube;
+				err = CreateTables(TGlSettings::currFusion, TGlSettings::numTube);
+				lbxInfo->AddItem("Новая труба создание", NULL);
+				lbxInfo->AddItem("Ожидание 0.1 сек", NULL);
+				Application->ProcessMessages();
+				// if (menuRepeatControl->Checked) {
+				// SqlDBModule->UpdIntSql(" flags ", " isReady ", 0, NULL);
+				// bbtStopClick(bbtStop);
+				// }else{
+				// //
+				// }   100
+				Sleep(100);
+				SqlDBModule->UpdFloatSql("currentSettings", "ParamValueFloat", TGlSettings::numTube,
+					"UPPER(ParamName)=UPPER('numCurrTube')");
+				Sleep (100);
+				SqlDBModule->UpdIntSql(" flags ", " isReady ", 1, NULL);
+				lbxInfo->AddItem("isReady=1", NULL);
+				lbxInfo->AddItem("Выставили готовность все данные", NULL);
+				// Sleep(2000);
+				Application->ProcessMessages();
+				if (menuSOP->Checked) {
+					// СОП
+					strSql = "select max(numTube) as F1 from resultTubeShort where numTube>0 and isEmpty=0 and isSOP=1 and numFusion=" +
+						IntToStr(TGlSettings::currFusion);
+				}
+				else {
+					strSql = "select max(numTube) as F1 from resultTubeShort where numTube>0 and isEmpty=0 and isSOP=0 and numFusion=" +
+						IntToStr(TGlSettings::currFusion);
+				}
+				countControls = SqlDBModule->GetIntFromSql(strSql);
+				if (countControls > 5000) {
+					bbtCountControl->Caption = "ПРОКОНТРОЛИРОВАНО: " + IntToStr(countControls - 5000);
+				}
+				else {
+					bbtCountControl->Caption = "ПРОКОНТРОЛИРОВАНО: " + IntToStr(countControls);
+				}
+				if (menuSOP->Checked || menuRepeatControl->Checked) {
+					bbtStopClick(bbtStop);
+					// menuRepeatControl->Checked = false;
+					return;
+				}
+
+				secYearBeginWait = SecondOfTheYear(Now());
+	}
+	
+	bool __store_base__::IsExist(bool crossBool, bool longBool, bool thickBool)
+	{
+		 if(crossBool)
+		 {
+			 AnsiString strSql =
+			 "SELECT count(*) as F1"\
+			 " FROM [dbo].[resultCross] where numTube=";
+			 strSql+=  IntToStr(TGlSettings::numTube);
+			 strSql+= " and numFusion=";
+			 strSql += IntToStr(TGlSettings::currFusion);
+			 strSql += " and Z1 is not NULL"\
+			 " and Z2 is not NULL"\
+			 " and Z3 is not NULL"\
+			 " and Z4 is not NULL";
+			 if(SqlDBModule->GetIntFromSql(strSql) > 0) return true;
+		 }
+		 if(longBool)
+		 {
+			 AnsiString strSql =
+			 "SELECT count(*) as F1"\
+			 " FROM [dbo].[resultLong] where numTube=";
+			 strSql+=  IntToStr(TGlSettings::numTube);
+			 strSql+= " and numFusion=";
+			 strSql += IntToStr(TGlSettings::currFusion);
+			 strSql += " and Z1 is not NULL"\
+			 " and Z2 is not NULL"\
+			 " and Z3 is not NULL"\
+			 " and Z4 is not NULL";
+			 if(SqlDBModule->GetIntFromSql(strSql) > 0) return true;
+		 }
+		 if(thickBool)
+		 {
+			 AnsiString strSql =
+			 "SELECT count(*) as F1"\
+			 " FROM [dbo].[resultThick] where numTube=";
+			 strSql+=  IntToStr(TGlSettings::numTube);
+			 strSql+= " and numFusion=";
+			 strSql += IntToStr(TGlSettings::currFusion);
+			 strSql += " and Min1 is not NULL"\
+			 " and Min2 is not NULL"\
+			 " and Min3 is not NULL"\
+			 " and Min4 is not NULL";
+			 if(SqlDBModule->GetIntFromSql(strSql) > 0) return true;
+		 }
+         return false;
+	}
+	void __store_base__::Clean(const char *s)
+	{
+		AnsiString str = "UPDATE " + AnsiString(s);
+str += " SET [Z1] = NULL"\
+" ,[Z2] = NULL"\
+" ,[Z3] = NULL"\
+" ,[Z4] = NULL"\
+" ,[Z5] = NULL"\
+" ,[Z6] = NULL"\
+" ,[Z7] = NULL"\
+" ,[Z8] = NULL"\
+" ,[Z9] = NULL"\
+" ,[Z10] = NULL"\
+" ,[Z11] = NULL"\
+" ,[Z12] = NULL"\
+" ,[Z13] = NULL"\
+" ,[Z14] = NULL"\
+" ,[Z15] = NULL"\
+" ,[Z16] = NULL"\
+" ,[Z17] = NULL"\
+" ,[Z18] = NULL"\
+" ,[Z19] = NULL"\
+" ,[Z20] = NULL"\
+" ,[Z21] = NULL"\
+" ,[Z22] = NULL"\
+" ,[Z23] = NULL"\
+" ,[Z24] = NULL"\
+" ,[Z25] = NULL"\
+" ,[Z26] = NULL"\
+" ,[Z27] = NULL"\
+" ,[Z28] = NULL"\
+" ,[Z29] = NULL"\
+" ,[Z30] = NULL"\
+" ,[Z31] = NULL"\
+" ,[Z32] = NULL"\
+" ,[Z33] = NULL"\
+" ,[Z34] = NULL"\
+" ,[Z35] = NULL"\
+" ,[Z36] = NULL"\
+" ,[Z37] = NULL"\
+" ,[Z38] = NULL"\
+" ,[Z39] = NULL"\
+" ,[Z40] = NULL"\
+" ,[Z41] = NULL"\
+" ,[Z42] = NULL"\
+" ,[Z43] = NULL"\
+" ,[Z44] = NULL"\
+" ,[Z45] = NULL"\
+" ,[Z46] = NULL"\
+" ,[Z47] = NULL"\
+" ,[Z48] = NULL"\
+" ,[Z49] = NULL"\
+" ,[Z50] = NULL"\
+" ,[Z51] = NULL"\
+" ,[Z52] = NULL"\
+" ,[Z53] = NULL"\
+" ,[Z54] = NULL"\
+" ,[Z55] = NULL"\
+" ,[Z56] = NULL"\
+" ,[Z57] = NULL"\
+" ,[Z58] = NULL"\
+" ,[Z59] = NULL"\
+" ,[Z60] = NULL"\
+" ,[Z61] = NULL"\
+" ,[Z62] = NULL"\
+" ,[Z63] = NULL"\
+" ,[Z64] = NULL"\
+" ,[Z65] = NULL"\
+" ,[Z66] = NULL"\
+" ,[Z67] = NULL"\
+" ,[Z68] = NULL"\
+" ,[Z69] = NULL"\
+" ,[Z70] = NULL"\
+" ,[Z71] = NULL"\
+" ,[Z72] = NULL"\
+" ,[Z73] = NULL"\
+" ,[Z74] = NULL"\
+" ,[Z75] = NULL"\
+" ,[Z76] = NULL"\
+" ,[Z77] = NULL"\
+" ,[Z78] = NULL"\
+" ,[Z79] = NULL"\
+" ,[Z80] = NULL"\
+" ,[Z81] = NULL"\
+" ,[Z82] = NULL"\
+" ,[Z83] = NULL"\
+" ,[Z84] = NULL"\
+" ,[Z85] = NULL"\
+" ,[Z86] = NULL"\
+" ,[Z87] = NULL"\
+" ,[Z88] = NULL"\
+" ,[Z89] = NULL"\
+" ,[Z90] = NULL"\
+" ,[Z91] = NULL"\
+" ,[Z92] = NULL"\
+" ,[Z93] = NULL"\
+" ,[Z94] = NULL"\
+" ,[Z95] = NULL"\
+" ,[Z96] = NULL"\
+" ,[Z97] = NULL"\
+" ,[Z98] = NULL"\
+" ,[Z99] = NULL"\
+" ,[Z100] = NULL"\
+" ,[Z101] = NULL"\
+" ,[Z102] = NULL"\
+" ,[Z103] = NULL"\
+" ,[Z104] = NULL"\
+" ,[Z105] = NULL"\
+" ,[Z106] = NULL"\
+" ,[Z107] = NULL"\
+" ,[Z108] = NULL"\
+" ,[Z109] = NULL"\
+" ,[Z110] = NULL"\
+" ,[Z111] = NULL"\
+" ,[Z112] = NULL"\
+" ,[Z113] = NULL"\
+" ,[Z114] = NULL"\
+" ,[Z115] = NULL"\
+" ,[Z116] = NULL"\
+" ,[Z117] = NULL"\
+" ,[Z118] = NULL"\
+" ,[Z119] = NULL"\
+" ,[Z120] = NULL"\
+" ,[Z121] = NULL"\
+" ,[Z122] = NULL"\
+" ,[Z123] = NULL"\
+" ,[Z124] = NULL"\
+" ,[Z125] = NULL"\
+" ,[Z126] = NULL"\
+" ,[Z127] = NULL"\
+" ,[Z128] = NULL"\
+" ,[Z129] = NULL"\
+" ,[Z130] = NULL"\
+" ,[Z131] = NULL"\
+" ,[Z132] = NULL"\
+" ,[Z133] = NULL"\
+" ,[Z134] = NULL"\
+" ,[Z135] = NULL"\
+" ,[Z136] = NULL"\
+" ,[Z137] = NULL"\
+" ,[Z138] = NULL"\
+" ,[Z139] = NULL"\
+" ,[Z140] = NULL"\
+" ,[Z141] = NULL"\
+" ,[Z142] = NULL"\
+" ,[Z143] = NULL"\
+" ,[Z144] = NULL"\
+" ,[Z145] = NULL"\
+" WHERE numTube=";
+str += IntToStr(TGlSettings::numTube);
+str += " and numFusion=";
+str += IntToStr(TGlSettings::currFusion);
+
+		SqlDBModule->queryForChart->Close();
+		SqlDBModule->queryForChart->SQL->Text = str;
+		SqlDBModule->queryForChart->ExecSQL();
+		SqlDBModule->queryForChart->Close();
+	}
+void __store_base__::CleanThick()
+{
+   AnsiString str = "UPDATE [dbo].[resultThick]"\
+" SET [Min1] = NULL"\
+" ,[Min2] = NULL"\
+" ,[Min3] = NULL"\
+" ,[Min4] = NULL"\
+" ,[Min5] = NULL"\
+" ,[Min6] = NULL"\
+" ,[Min7] = NULL"\
+" ,[Min8] = NULL"\
+" ,[Min9] = NULL"\
+" ,[Min10] = NULL"\
+" ,[Min11] = NULL"\
+" ,[Min12] = NULL"\
+" ,[Min13] = NULL"\
+" ,[Min14] = NULL"\
+" ,[Min15] = NULL"\
+" ,[Min16] = NULL"\
+" ,[Min17] = NULL"\
+" ,[Min18] = NULL"\
+" ,[Min19] = NULL"\
+" ,[Min20] = NULL"\
+" ,[Min21] = NULL"\
+" ,[Min22] = NULL"\
+" ,[Min23] = NULL"\
+" ,[Min24] = NULL"\
+" ,[Min25] = NULL"\
+" ,[Min26] = NULL"\
+" ,[Min27] = NULL"\
+" ,[Min28] = NULL"\
+" ,[Min29] = NULL"\
+" ,[Min30] = NULL"\
+" ,[Min31] = NULL"\
+" ,[Min32] = NULL"\
+" ,[Min33] = NULL"\
+" ,[Min34] = NULL"\
+" ,[Min35] = NULL"\
+" ,[Min36] = NULL"\
+" ,[Min37] = NULL"\
+" ,[Min38] = NULL"\
+" ,[Min39] = NULL"\
+" ,[Min40] = NULL"\
+" ,[Min41] = NULL"\
+" ,[Min42] = NULL"\
+" ,[Min43] = NULL"\
+" ,[Min44] = NULL"\
+" ,[Min45] = NULL"\
+" ,[Min46] = NULL"\
+" ,[Min47] = NULL"\
+" ,[Min48] = NULL"\
+" ,[Min49] = NULL"\
+" ,[Min50] = NULL"\
+" ,[Min51] = NULL"\
+" ,[Min52] = NULL"\
+" ,[Min53] = NULL"\
+" ,[Min54] = NULL"\
+" ,[Min55] = NULL"\
+" ,[Min56] = NULL"\
+" ,[Min57] = NULL"\
+" ,[Min58] = NULL"\
+" ,[Min59] = NULL"\
+" ,[Min60] = NULL"\
+" ,[Min61] = NULL"\
+" ,[Min62] = NULL"\
+" ,[Min63] = NULL"\
+" ,[Min64] = NULL"\
+" ,[Min65] = NULL"\
+" ,[Min66] = NULL"\
+" ,[Min67] = NULL"\
+" ,[Min68] = NULL"\
+" ,[Min69] = NULL"\
+" ,[Min70] = NULL"\
+" ,[Min71] = NULL"\
+" ,[Min72] = NULL"\
+" ,[Min73] = NULL"\
+" ,[Min74] = NULL"\
+" ,[Min75] = NULL"\
+" ,[Min76] = NULL"\
+" ,[Min77] = NULL"\
+" ,[Min78] = NULL"\
+" ,[Min79] = NULL"\
+" ,[Min80] = NULL"\
+" ,[Min81] = NULL"\
+" ,[Min82] = NULL"\
+" ,[Min83] = NULL"\
+" ,[Min84] = NULL"\
+" ,[Min85] = NULL"\
+" ,[Min86] = NULL"\
+" ,[Min87] = NULL"\
+" ,[Min88] = NULL"\
+" ,[Min89] = NULL"\
+" ,[Min90] = NULL"\
+" ,[Min91] = NULL"\
+" ,[Min92] = NULL"\
+" ,[Min93] = NULL"\
+" ,[Min94] = NULL"\
+" ,[Min95] = NULL"\
+" ,[Min96] = NULL"\
+" ,[Min97] = NULL"\
+" ,[Min98] = NULL"\
+" ,[Min99] = NULL"\
+" ,[Min100] = NULL"\
+" ,[Min101] = NULL"\
+" ,[Min102] = NULL"\
+" ,[Min103] = NULL"\
+" ,[Min104] = NULL"\
+" ,[Min105] = NULL"\
+" ,[Min106] = NULL"\
+" ,[Min107] = NULL"\
+" ,[Min108] = NULL"\
+" ,[Min109] = NULL"\
+" ,[Min110] = NULL"\
+" ,[Min111] = NULL"\
+" ,[Min112] = NULL"\
+" ,[Min113] = NULL"\
+" ,[Min114] = NULL"\
+" ,[Min115] = NULL"\
+" ,[Min116] = NULL"\
+" ,[Min117] = NULL"\
+" ,[Min118] = NULL"\
+" ,[Min119] = NULL"\
+" ,[Min120] = NULL"\
+" ,[Min121] = NULL"\
+" ,[Min122] = NULL"\
+" ,[Min123] = NULL"\
+" ,[Min124] = NULL"\
+" ,[Min125] = NULL"\
+" ,[Min126] = NULL"\
+" ,[Min127] = NULL"\
+" ,[Min128] = NULL"\
+" ,[Min129] = NULL"\
+" ,[Min130] = NULL"\
+" ,[Min131] = NULL"\
+" ,[Min132] = NULL"\
+" ,[Min133] = NULL"\
+" ,[Min134] = NULL"\
+" ,[Min135] = NULL"\
+" ,[Min136] = NULL"\
+" ,[Min137] = NULL"\
+" ,[Min138] = NULL"\
+" ,[Min139] = NULL"\
+" ,[Min140] = NULL"\
+" ,[Min141] = NULL"\
+" ,[Min142] = NULL"\
+" ,[Min143] = NULL"\
+" ,[Min144] = NULL"\
+" ,[Min145] = NULL"\
+" ,[Max1] = NULL"\
+" ,[Max2] = NULL"\
+" ,[Max3] = NULL"\
+" ,[Max4] = NULL"\
+" ,[Max5] = NULL"\
+" ,[Max6] = NULL"\
+" ,[Max7] = NULL"\
+" ,[Max8] = NULL"\
+" ,[Max9] = NULL"\
+" ,[Max10] = NULL"\
+" ,[Max11] = NULL"\
+" ,[Max12] = NULL"\
+" ,[Max13] = NULL"\
+" ,[Max14] = NULL"\
+" ,[Max15] = NULL"\
+" ,[Max16] = NULL"\
+" ,[Max17] = NULL"\
+" ,[Max18] = NULL"\
+" ,[Max19] = NULL"\
+" ,[Max20] = NULL"\
+" ,[Max21] = NULL"\
+" ,[Max22] = NULL"\
+" ,[Max23] = NULL"\
+" ,[Max24] = NULL"\
+" ,[Max25] = NULL"\
+" ,[Max26] = NULL"\
+" ,[Max27] = NULL"\
+" ,[Max28] = NULL"\
+" ,[Max29] = NULL"\
+" ,[Max30] = NULL"\
+" ,[Max31] = NULL"\
+" ,[Max32] = NULL"\
+" ,[Max33] = NULL"\
+" ,[Max34] = NULL"\
+" ,[Max35] = NULL"\
+" ,[Max36] = NULL"\
+" ,[Max37] = NULL"\
+" ,[Max38] = NULL"\
+" ,[Max39] = NULL"\
+" ,[Max40] = NULL"\
+" ,[Max41] = NULL"\
+" ,[Max42] = NULL"\
+" ,[Max43] = NULL"\
+" ,[Max44] = NULL"\
+" ,[Max45] = NULL"\
+" ,[Max46] = NULL"\
+" ,[Max47] = NULL"\
+" ,[Max48] = NULL"\
+" ,[Max49] = NULL"\
+" ,[Max50] = NULL"\
+" ,[Max51] = NULL"\
+" ,[Max52] = NULL"\
+" ,[Max53] = NULL"\
+" ,[Max54] = NULL"\
+" ,[Max55] = NULL"\
+" ,[Max56] = NULL"\
+" ,[Max57] = NULL"\
+" ,[Max58] = NULL"\
+" ,[Max59] = NULL"\
+" ,[Max60] = NULL"\
+" ,[Max61] = NULL"\
+" ,[Max62] = NULL"\
+" ,[Max63] = NULL"\
+" ,[Max64] = NULL"\
+" ,[Max65] = NULL"\
+" ,[Max66] = NULL"\
+" ,[Max67] = NULL"\
+" ,[Max68] = NULL"\
+" ,[Max69] = NULL"\
+" ,[Max70] = NULL"\
+" ,[Max71] = NULL"\
+" ,[Max72] = NULL"\
+" ,[Max73] = NULL"\
+" ,[Max74] = NULL"\
+" ,[Max75] = NULL"\
+" ,[Max76] = NULL"\
+" ,[Max77] = NULL"\
+" ,[Max78] = NULL"\
+" ,[Max79] = NULL"\
+" ,[Max80] = NULL"\
+" ,[Max81] = NULL"\
+" ,[Max82] = NULL"\
+" ,[Max83] = NULL"\
+" ,[Max84] = NULL"\
+" ,[Max85] = NULL"\
+" ,[Max86] = NULL"\
+" ,[Max87] = NULL"\
+" ,[Max88] = NULL"\
+" ,[Max89] = NULL"\
+" ,[Max90] = NULL"\
+" ,[Max91] = NULL"\
+" ,[Max92] = NULL"\
+" ,[Max93] = NULL"\
+" ,[Max94] = NULL"\
+" ,[Max95] = NULL"\
+" ,[Max96] = NULL"\
+" ,[Max97] = NULL"\
+" ,[Max98] = NULL"\
+" ,[Max99] = NULL"\
+" ,[Max100] = NULL"\
+" ,[Max101] = NULL"\
+" ,[Max102] = NULL"\
+" ,[Max103] = NULL"\
+" ,[Max104] = NULL"\
+" ,[Max105] = NULL"\
+" ,[Max106] = NULL"\
+" ,[Max107] = NULL"\
+" ,[Max108] = NULL"\
+" ,[Max109] = NULL"\
+" ,[Max110] = NULL"\
+" ,[Max111] = NULL"\
+" ,[Max112] = NULL"\
+" ,[Max113] = NULL"\
+" ,[Max114] = NULL"\
+" ,[Max115] = NULL"\
+" ,[Max116] = NULL"\
+" ,[Max117] = NULL"\
+" ,[Max118] = NULL"\
+" ,[Max119] = NULL"\
+" ,[Max120] = NULL"\
+" ,[Max121] = NULL"\
+" ,[Max122] = NULL"\
+" ,[Max123] = NULL"\
+" ,[Max124] = NULL"\
+" ,[Max125] = NULL"\
+" ,[Max126] = NULL"\
+" ,[Max127] = NULL"\
+" ,[Max128] = NULL"\
+" ,[Max129] = NULL"\
+" ,[Max130] = NULL"\
+" ,[Max131] = NULL"\
+" ,[Max132] = NULL"\
+" ,[Max133] = NULL"\
+" ,[Max134] = NULL"\
+" ,[Max135] = NULL"\
+" ,[Max136] = NULL"\
+" ,[Max137] = NULL"\
+" ,[Max138] = NULL"\
+" ,[Max139] = NULL"\
+" ,[Max140] = NULL"\
+" ,[Max141] = NULL"\
+" ,[Max142] = NULL"\
+" ,[Max143] = NULL"\
+" ,[Max144] = NULL"\
+" ,[Max145] = NULL"\
+" WHERE numTube=";
+
+str += IntToStr(TGlSettings::numTube);
+str += " and numFusion=";
+str += IntToStr(TGlSettings::currFusion);
+
+		SqlDBModule->queryForChart->Close();
+		SqlDBModule->queryForChart->SQL->Text = str;
+		SqlDBModule->queryForChart->ExecSQL();
+		SqlDBModule->queryForChart->Close();
+}
+
 void __fastcall TfmMain::TimerUpdateStateTimer(TObject *Sender) {
 	int err = 0;
 	TimerUpdateState->Enabled = false;
@@ -1465,77 +2046,11 @@ void __fastcall TfmMain::TimerUpdateStateTimer(TObject *Sender) {
 				LongWord secNowWait = SecondOfTheYear(Now());
 			}
 			else if(bT || bC || bL){
-				pnlMsg->Caption = "ПОЛУЧИЛИ ДАННЫЕ ПО ТРУБЕ № " + IntToStr(TGlSettings::numTube);
-				pnlMsg->Font->Color = clGreen;
-				pnlMsg->Refresh();
-				strSql = "SELECT [dbo].[GetCountRoundXML] ('";
-				strSql += IntToStr(TGlSettings::currFusion);
-				strSql += "','";
-				strSql += IntToStr(TGlSettings::numTube);
-				strSql += "') as F1";
-				strTmp = SqlDBModule->GetStrFromFunctionSql(strSql, err);
-				double speedRound = 0;
-				if (TryStrToFloat(strTmp, speedRound)) {
-					if (speedRound < 0) {
-						speedRound = 0;
-					}
-					else {
-						//
-					}
-				}
-				else {
-					speedRound = 0;
-				}
-				SqlDBModule->UpdFloatSql("resultTubeShort", "speedRound", speedRound, strSqlWhere);
-				// новая труба создание
-				TGlSettings::numTube++;
-				tmpDouble = TGlSettings::numTube;
-				err = CreateTables(TGlSettings::currFusion, TGlSettings::numTube);
-				lbxInfo->AddItem("Новая труба создание", NULL);
-				lbxInfo->AddItem("Ожидание 0.1 сек", NULL);
-				Application->ProcessMessages();
-				// if (menuRepeatControl->Checked) {
-				// SqlDBModule->UpdIntSql(" flags ", " isReady ", 0, NULL);
-				// bbtStopClick(bbtStop);
-				// }else{
-				// //
-				// }   100
-				Sleep(100);
-				SqlDBModule->UpdFloatSql("currentSettings", "ParamValueFloat", TGlSettings::numTube,
-					"UPPER(ParamName)=UPPER('numCurrTube')");
-				Sleep (100);
-				SqlDBModule->UpdIntSql(" flags ", " isReady ", 1, NULL);
-				lbxInfo->AddItem("isReady=1", NULL);
-				lbxInfo->AddItem("Выставили готовность все данные", NULL);
-				// Sleep(2000);
-				Application->ProcessMessages();
-				if (menuSOP->Checked) {
-					// СОП
-					strSql = "select max(numTube) as F1 from resultTubeShort where numTube>0 and isEmpty=0 and isSOP=1 and numFusion=" +
-						IntToStr(TGlSettings::currFusion);
-				}
-				else {
-					strSql = "select max(numTube) as F1 from resultTubeShort where numTube>0 and isEmpty=0 and isSOP=0 and numFusion=" +
-						IntToStr(TGlSettings::currFusion);
-				}
-				countControls = SqlDBModule->GetIntFromSql(strSql);
-				if (countControls > 5000) {
-					bbtCountControl->Caption = "ПРОКОНТРОЛИРОВАНО: " + IntToStr(countControls - 5000);
-				}
-				else {
-					bbtCountControl->Caption = "ПРОКОНТРОЛИРОВАНО: " + IntToStr(countControls);
-				}
-				if (menuSOP->Checked || menuRepeatControl->Checked) {
-					bbtStopClick(bbtStop);
-					// menuRepeatControl->Checked = false;
-					return;
-				}
-				
-				secYearBeginWait = SecondOfTheYear(Now());
+				   (*(__store_base__ *)this)(err);
 			}
 			err = CheckBrakCount(TGlSettings::currFusion);
 		}
-	
+
 		TimerUpdateState->Enabled = true;
 		err = 0;
 	}

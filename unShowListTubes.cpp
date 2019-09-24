@@ -194,12 +194,12 @@ void __fastcall TfmShowListTubes::FormCreate(TObject *Sender) {
 	",T4.SopName as 'Настр. СОП'"\
 	", T5.steelGradeName as 'Марка стали', T6.typeSizeName as 'Типоразмер', T7.workShiftName as 'Смена'"\
 	",T2.operatorName as 'Оператор'"\
-	",(case (SELECT count(*) FROM resultThick where numFusion=T1.numFusion and numTube=T1.numTube) when 0 then 'Нет данных' else"\
-	" case T1.resultT when 0 then 'Годно' when -1 then 'Нет данных' else 'ДЕФЕКТ' end end) as 'К. толщины'"\
-	",(case (SELECT  count(*) FROM resultCross where numFusion=T1.numFusion and numTube=T1.numTube) when 0 then 'Нет данных' else"\
-	"    case T1.resultC when 0 then 'Годно' when -1 then 'Нет данных' else 'ДЕФЕКТ' end end) as 'Поперечный к.'"\
-	",(case (SELECT count(*) FROM resultLong where numFusion=T1.numFusion and numTube=T1.numTube) when 0 then 'Нет данных' else"\
-	"    case T1.resultL when 0 then 'Годно' when -1 then 'Нет данных' else 'ДЕФЕКТ' end end) as 'Продольный к.'"\
+	",(CASE WHEN NOT EXISTS(SELECT * FROM resultThick where numFusion=T1.numFusion and numTube=T1.numTube) THEN 'Нет данных' ELSE"\
+	" case T1.resultT when 0 then 'Годно' when -1 then 'Нет данных' else 'ДЕФЕКТ' end end) as 'К. Толщины' "\
+	",(CASE WHEN NOT EXISTS(SELECT * FROM resultCross where numFusion=T1.numFusion and numTube=T1.numTube) THEN 'Нет данных' ELSE"\
+	" case T1.resultC when 0 then 'Годно' when -1 then 'Нет данных' else 'ДЕФЕКТ' end end) as 'Поперечный к.' "\
+	",(CASE WHEN NOT EXISTS(SELECT * FROM resultLong where numFusion=T1.numFusion and numTube=T1.numTube) THEN 'Нет данных' ELSE"\
+	" case T1.resultL when 0 then 'Годно' when -1 then 'Нет данных' else 'ДЕФЕКТ' end end) as 'Продольный к.' "\
 	",T1.lengthTube as 'Длина трубы',T1.speedTube as 'Скорость'"\
 	",(case T1.isSOP when 0 then 'Нет' when 1 then 'Да' else 'Неизвестно' end) as 'СОП'"\
 	" ,T1.thresholdC1,T1.thresholdC2,T1.thresholdL1,T1.thresholdL2,thresholdTUp,thresholdTDown,thresholdTNominal"\
