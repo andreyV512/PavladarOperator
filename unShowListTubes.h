@@ -62,6 +62,7 @@ __published: // IDE-managed Components
 	TCheckBox *cbxBrackAll;
 	TTimer *timerRefresh;
 	TCheckBox *cbxWithSOP;
+	TMenuItem *miDeleteTube;
 	// --------------------------
 
 	void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
@@ -81,6 +82,7 @@ __published: // IDE-managed Components
 	void __fastcall timerRefreshTimer(TObject *Sender);
 	void __fastcall queryShowListTubesAfterOpen(TDataSet *DataSet);
 	void __fastcall FormCloseQuery(TObject *Sender, bool &CanClose);
+	void __fastcall miDeleteTubeClick(TObject *Sender);
 
 private: // User declarations
 	int ShowZones(TObject *_sender);

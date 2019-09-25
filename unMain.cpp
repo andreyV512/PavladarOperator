@@ -301,6 +301,10 @@ void __fastcall TfmMain::bbtReadyClick(TObject *Sender) {
 						}
 					}
 					 }
+					 else
+					 {
+						 return;
+                     }
 				}
 
 				if (TGlSettings::numTube == 0) {
@@ -503,55 +507,37 @@ void __fastcall TfmMain::FormCreate(TObject *Sender) {
 		LoadInitSettings();
 		GetAndSendIP_MAC();
 		// testCounter = 0;
+
+		AnsiString strSql = "SELECT [dbo].[GetDBSizeMb]() as F1";
+		double szDb = SqlDBModule->GetDoubleFromFunctionSql(strSql, err);
+		if(szDb > 9000.0)
+		{
+			MessageDlg("Предупреждение, размер базы приближается к максимальному 10Gb, Текущий размер: "
+			+ FloatToStrF(0.001 * szDb, ffFixed, 6, 2)+"Gb", mtInformation, TMsgDlgButtons() << mbOK, 0);
+		}
 	}
 	catch (Exception *ex) {
 		err = -1;
 		TLog::ErrFullSaveLog(ex);
-		// AnsiString msg
-		// programSettings.colorMSG = programSettings.colorBrak;
-		// TExtFunction::UpdateStatusBar(programSettings.gsStatusBar, strStatus, _msg, programSettings.colorMSG);
 		MessageDlg(ex->Message, mtError, TMsgDlgButtons() << mbOK, NULL);
 	}
 	InitCharts();
-	// TGlSettings::isSOP = 0;
 	menuSOP->Checked = false;
 }
 
 void __fastcall TfmMain::ApplicationEventsMessage(tagMSG &Msg, bool &Handled) {
 	int ind = 0;
 	AnsiString str = "";
-	// if (Msg.message == WM_HOTKEY) { // сообщение по включению редактирования настроек
-	// if (Msg.wParam == 0x00E) // идентификатор наш
-	// {
-	// WinExec("hh ..\\..\\help\\Help.chm", SW_RESTORE);
-	// Handled = true;
-	// }
-	// }
 	switch (Msg.message) {
 
 	case 12: {
 			break;
 		}
-		// case TGlSettings::msgFmViewZone: {
-		// str = "Сообщение: расчет треда, код: ";
-		// // serg time
-		// // UpdateStatus(str, str);
-		// str += Msg.lParam;
-		// // TLog::SaveStrMsgLog(str);
-		// // if (threadWork != NULL)
-		// break;
-		// }
-		// case TGlSettings::msgReloadSettings: {
-		// str = "Сообщение: расчет треда, код: ";
-		// break;
-		// }
 	default:
 		break;
 	}
 
 	if (Msg.message == TGlSettings::msgReloadSettings) {
-		// str = "Сообщение: расчет треда, код: ";
-		// FormCreate(TObject *Sender);
 		FillComboboxses();
 		MessageDlg("Обновили справочники", mtInformation, TMsgDlgButtons() << mbOK, NULL);
 	}
@@ -579,9 +565,6 @@ int TfmMain::FillComboboxses() {
 	catch (Exception *ex) {
 		err = -1;
 		TLog::ErrFullSaveLog(ex);
-		// AnsiString msg
-		// programSettings.colorMSG = programSettings.colorBrak;
-		// TExtFunction::UpdateStatusBar(programSettings.gsStatusBar, strStatus, _msg, programSettings.colorMSG);
 		MessageDlg(ex->Message, mtError, TMsgDlgButtons() << mbOK, NULL);
 	}
 	return err;
@@ -595,8 +578,6 @@ int TfmMain::LoadInitSettings() {
 	AnsiString strSql = "";
 	try {
 		lbxInfo->AddItem("LoadInitSettings()", NULL);
-		// cbxTubesTypeSize->ItemIndex=
-		// int GetIntFieldSQL(AnsiString _tableName, AnsiString _fieldName, AnsiString _where, int _default,int &err);
 		TGlSettings::indTypeSize = SqlDBModule->GetIntFieldSQL("currentSettings", "ParamValueFloat",
 			"isActual = 1 and UPPER(ParamName) = UPPER('indTypeSize')", 0, err);
 		cbxTubesTypeSize->ItemIndex = GetIndexCbx(TGlSettings::indTypeSize, cbxTubesTypeSize);
@@ -2774,22 +2755,6 @@ int TfmMain::GetBordersC(int _indTypeSize, int _numFusion, int _numTube) {
 	UnicodeString strTmp = "";
 	TReplaceFlags ReplaceFlags;
 	try {
-		// strSql="SELECT PCross FROM ResultPars where TypeSize=3 and Fusion=11 and Tube=7";
-		// strSql="SELECT PCross FROM ResultPars where TypeSize=3 and Fusion=12 and Tube=1";
-		// strSql = "SELECT PCross from ResultPars where ";
-		// strSql += " Fusion=" + IntToStr(_numFusion);
-		// strSql += " and Tube=" + IntToStr(_numTube);
-		// queryXML->Close();
-		// queryXML->SQL->Text = strSql;
-		// queryXML->Open();
-		// count = queryXML->RecordCount;
-		// strXml = queryXML->FieldByName("PCross")->AsString;
-		// ------------------------+
-		// strSql = "SELECT [dbo].[GetBorderCrossXML1] (";
-		// strSql += IntToStr(TGlSettings::currFusion);
-		// strSql += ",";
-		// strSql += IntToStr(TGlSettings::numTube);
-		// strSql += ") as F1";
 		strSql = "SELECT [dbo].[GetTzBorderC1] (";
 		strSql += IntToStr(TGlSettings::indTypeSize);
 		strSql += ") as F1";
@@ -2818,10 +2783,6 @@ int TfmMain::GetBordersC(int _indTypeSize, int _numFusion, int _numTube) {
 			// TGlSettings::thresholdC2 = 0;
 			err = -3;
 			lbxInfo->AddItem("Нет настроек поперечника!", NULL);
-			// pnlMsg->Caption = "Нет настроек поперечника!";
-			// pnlMsg->Font->Color=clBlack;
-			// pnlMsg->Refresh();
-			// TLog::SaveStrMsgLog("Не дождались настроек поперечника!");
 			// пробуем загрузить дефолтовые
 			AnsiString strSql = " SELECT thresholdC1";
 			strSql += ",thresholdC2";

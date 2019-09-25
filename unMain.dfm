@@ -918,6 +918,7 @@ object fmMain: TfmMain
       end
       object menuModify: TMenuItem
         Caption = #1052#1054#1044#1048#1060#1048#1050#1040#1062#1048#1071' '#1047#1040#1055#1048#1057#1045#1049
+        Visible = False
         OnClick = menuModifyClick
       end
       object menuViewLog: TMenuItem

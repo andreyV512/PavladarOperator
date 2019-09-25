@@ -410,6 +410,10 @@ object fmShowListTubes: TfmShowListTubes
       Caption = #1056#1040#1057#1055#1045#1063#1040#1058#1040#1058#1068' '#1054#1058#1060#1048#1051#1068#1058#1056#1054#1042#1040#1053#1053#1054#1045
       OnClick = mnuPrintSelectedClick
     end
+    object miDeleteTube: TMenuItem
+      Caption = #1059#1044#1040#1051#1048#1058#1068' '#1058#1056#1059#1041#1059
+      OnClick = miDeleteTubeClick
+    end
   end
   object queryShowListTubes: TADOQuery
     Connection = SqlDBModule.ADOConnectionDB
