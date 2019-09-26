@@ -145,6 +145,7 @@ __published: // IDE-managed Components
 	TCheckBox *cbCross;
 	TCheckBox *cbLong;
 	TCheckBox *cbThick;
+	TMenuItem *DeleteFromBaseTubeInfo;
 
 	void __fastcall menuExitClick(TObject *Sender);
 	void __fastcall menuAboutClick(TObject *Sender);
@@ -164,7 +165,6 @@ __published: // IDE-managed Components
 	void __fastcall menuExtInfoClick(TObject *Sender);
 	void __fastcall TimerUpdateStateTimer(TObject *Sender);
 	void __fastcall ApplicationEventsMessage(tagMSG &Msg, bool &Handled);
-	void __fastcall BitBtn1Click(TObject *Sender);
 	void __fastcall menuGSettingsClick(TObject *Sender);
 	void __fastcall FormCloseQuery(TObject *Sender, bool &CanClose);
 	void __fastcall cbxTubesTypeSizeSelect(TObject *Sender);
@@ -183,10 +183,10 @@ __published: // IDE-managed Components
 	void __fastcall menuShowLogClick(TObject *Sender);
 	void __fastcall bbtTestClick(TObject *Sender);
 	void __fastcall timerBackupTimer(TObject *Sender);
-	void __fastcall menuViewArhClick(TObject *Sender);
 	void __fastcall menuModifyClick(TObject *Sender);
 	void __fastcall menuViewLogClick(TObject *Sender);
 	void __fastcall menuSetReadySecClick(TObject *Sender);
+	void __fastcall DeleteFromBaseTubeInfoClick(TObject *Sender);
 
 protected: // User declarations
 	// считаем прошлые установки

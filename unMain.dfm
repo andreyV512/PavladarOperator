@@ -455,7 +455,6 @@ object fmMain: TfmMain
         ParentFont = False
         TabOrder = 0
         Visible = False
-        OnClick = BitBtn1Click
       end
       object bbtForseReady: TBitBtn
         Left = 76
@@ -892,7 +891,6 @@ object fmMain: TfmMain
       end
       object menuBackup: TMenuItem
         Caption = #1056#1045#1047#1045#1056#1042#1048#1056#1054#1042#1040#1053#1048#1045' '#1041#1040#1047#1067' '#1044#1040#1053#1053#1067#1061
-        Visible = False
         OnClick = menuBackupClick
       end
       object mnuArhive: TMenuItem
@@ -914,7 +912,6 @@ object fmMain: TfmMain
       object menuViewArh: TMenuItem
         Caption = #1055#1056#1054#1057#1052#1054#1058#1056' '#1040#1056#1061#1048#1042#1053#1054#1049' '#1041#1044
         Visible = False
-        OnClick = menuViewArhClick
       end
       object menuModify: TMenuItem
         Caption = #1052#1054#1044#1048#1060#1048#1050#1040#1062#1048#1071' '#1047#1040#1055#1048#1057#1045#1049
@@ -924,6 +921,10 @@ object fmMain: TfmMain
       object menuViewLog: TMenuItem
         Caption = #1057#1052#1054#1058#1056#1045#1058#1068' '#1057#1054#1041#1067#1058#1048#1071
         OnClick = menuViewLogClick
+      end
+      object DeleteFromBaseTubeInfo: TMenuItem
+        Caption = #1059#1044#1040#1051#1048#1058#1068' '#1048#1047' '#1041#1040#1047#1067' '#1048#1053#1060#1054#1056#1052#1040#1062#1048#1070' '#1055#1054' '#1058#1056#1059#1041#1040#1052
+        OnClick = DeleteFromBaseTubeInfoClick
       end
     end
     object menuhelp: TMenuItem

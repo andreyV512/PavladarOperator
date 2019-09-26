@@ -13,6 +13,7 @@ object SqlDBModule: TSqlDBModule
     Top = 32
   end
   object ADOCommandDB: TADOCommand
+    CommandTimeout = 0
     Connection = ADOConnectionDB
     Parameters = <>
     Left = 56
@@ -85,6 +86,7 @@ object SqlDBModule: TSqlDBModule
   end
   object queryQuick: TADOQuery
     Connection = ADOConnectionDB
+    CommandTimeout = 0
     Parameters = <>
     SQL.Strings = (
       'select * from LCardDout')
