@@ -11,9 +11,9 @@ private:
 protected:
 	void *f;
 	void __fastcall Execute();
-	void __fastcall UpdateCaption();
 public:
 	__fastcall CleanDataBaseThread(void *f);
+    static void CloseWindow(void *param);
 };
 //---------------------------------------------------------------------------
 #endif

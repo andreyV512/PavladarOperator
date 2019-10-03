@@ -10,7 +10,7 @@
 TMessageForm *MessageForm;
 
 // ---------------------------------------------------------------------------
-__fastcall TMessageForm::TMessageForm(TComponent* Owner) : TForm(Owner) {
+__fastcall TMessageForm::TMessageForm() : TForm((HWND__ *)NULL) {
 	currentTime = 0;
 	Application->NormalizeTopMosts();
 	Application->ProcessMessages();
@@ -22,7 +22,6 @@ void __fastcall TMessageForm::Timer1Timer(TObject *Sender) {
 
 	TVarRec args[] = {currentTime / 60, currentTime % 60};
 	labelTime->Caption = Format("%02d:%02d", args, 2);
-	//labelTime->Refresh();
 }
 
 // ---------------------------------------------------------------------------

@@ -528,7 +528,17 @@ void __fastcall TfmMain::CheckBox(TObject *Sender) {
 }
 
 // ---------------------------------------------------------------------------
+void __fastcall TfmMain::UserProc(tagMSG &msg, bool &handled)
+{
+	if(WM_USER_PROC == msg.message)
+	{
+		(*(void(*)(void *))msg.wParam)((void *)msg.lParam);
+		handled = true;
+    }
+}
+//-----------------------------------------------------------------------------
 void __fastcall TfmMain::FormCreate(TObject *Sender) {
+	Application->OnMessage = UserProc;
 	// ------------загружаем чекбоксы
 	PathIni path;
 	cbCross->Checked = 0 != GetPrivateProfileInt(L"CheckBoxs",
@@ -1409,12 +1419,7 @@ void __store_base__:: operator()(int &err) {
 	lbxInfo->AddItem("Новая труба создание", NULL);
 	lbxInfo->AddItem("Ожидание 0.1 сек", NULL);
 	Application->ProcessMessages();
-	// if (menuRepeatControl->Checked) {
-	// SqlDBModule->UpdIntSql(" flags ", " isReady ", 0, NULL);
-	// bbtStopClick(bbtStop);
-	// }else{
-	// //
-	// }   100
+
 	Sleep(100);
 	SqlDBModule->UpdFloatSql("currentSettings", "ParamValueFloat",
 		TGlSettings::numTube, "UPPER(ParamName)=UPPER('numCurrTube')");
@@ -1981,7 +1986,6 @@ void __fastcall TfmMain::TimerUpdateStateTimer(TObject *Sender) {
 		lbxInfo->AddItem(pnlMsg->Caption, NULL);
 		if (lbxInfo->Items->Count > 40) {
 			lbxInfo->Clear();
-
 		}
 
 		if (TGlSettings::isWorkState) {
@@ -2011,7 +2015,6 @@ void __fastcall TfmMain::TimerUpdateStateTimer(TObject *Sender) {
 		isDataSendCompleet = SqlDBModule->GetBoolFieldSQL("flags",
 			"isDataSendCompleet", "isActual=1", 0, err);
 		if (TGlSettings::isWorkState || menuRepeatControl->Checked) {
-			// if (isDataSendCompleet && (TGlSettings::isWorkState || menuRepeatControl->Checked)) {
 			SqlDBModule->UpdBoolSql("flags", "isDataSendCompleet", 0,
 				"isActual=1");
 			strSqlWhere = "numFusion=" + IntToStr(TGlSettings::currFusion) +
@@ -2046,21 +2049,15 @@ void __fastcall TfmMain::TimerUpdateStateTimer(TObject *Sender) {
 				ReplaceFlags << rfReplaceAll << rfIgnoreCase);
 			TGlSettings::currMagnetL = StrToFloat(strTmp);
 			lbxInfo->AddItem("currMagnetL", NULL);
-			// lbxInfo->AddItem("flags  isReady=" + IntToStr(SqlDBModule->GetIntFieldSQL("flags", "isReady", "isActual=1", 0, err)), NULL);
 			// -----
 			lbxInfo->AddItem("GetBordersT", NULL);
-			// Sleep(1000);
 			GetBordersT(TGlSettings::indTypeSize, TGlSettings::currFusion,
 				TGlSettings::numTube);
-			// SqlDBModule->UpdBoolSql("flags", "isDataSendCompleet", 0, "isActual=1");
 			// -------------
-			// Sleep(1000);
 			lbxInfo->AddItem("GetBordersC", NULL);
 			GetBordersC(TGlSettings::indTypeSize, TGlSettings::currFusion,
 				TGlSettings::numTube);
-			// SqlDBModule->UpdBoolSql("flags", "isDataSendCompleet", 0, "isActual=1");
 			// -------------
-			// Sleep(1000);
 			lbxInfo->AddItem("GetBordersL", NULL);
 			GetBordersL(TGlSettings::indTypeSize, TGlSettings::currFusion,
 				TGlSettings::numTube);
@@ -2126,11 +2123,9 @@ void __fastcall TfmMain::TimerUpdateStateTimer(TObject *Sender) {
 			SqlDBModule->UpdFloatSql("resultTubeShort", "lengthTube", lt,
 				strSqlWhere);
 			// ------
-			// lbxInfo->Clear();
 			lbxInfo->AddItem
 				("SqlDBModule->UpdFloatSql(resultTubeShort, lengthTube, lt, strSqlWhere);",
 				NULL);
-			// ViewCurrentBorders(TGlSettings::currFusion, TGlSettings::numTube);
 			double valBorderTMin =
 				RoundTo((TGlSettings::thresholdTNominal -
 				TGlSettings::thresholdTDown * TGlSettings::thresholdTNominal /
@@ -2139,9 +2134,6 @@ void __fastcall TfmMain::TimerUpdateStateTimer(TObject *Sender) {
 				RoundTo((TGlSettings::thresholdTNominal +
 				TGlSettings::thresholdTUp * TGlSettings::thresholdTNominal /
 				100.0), -1);
-
-			// lbxInfo->AddItem("flags  isReady=" + IntToStr(SqlDBModule->GetIntFieldSQL("flags", "isReady", "isActual=1", 0, err)), NULL);
-			// if (!TGlSettings::repeatControl) {
 			if (!menuRepeatControl->Checked) { // если не повторный контроль
 				SqlDBModule->queryQuick->Close();
 				if (menuSOP->Checked) {
@@ -2175,12 +2167,7 @@ void __fastcall TfmMain::TimerUpdateStateTimer(TObject *Sender) {
 				lbxInfo->AddItem("Сняли готовность по первым данным", NULL);
 				bbtMode->Font->Color = clYellow;
 				Application->ProcessMessages();
-				// TimerUpdateState->Enabled = true;
 				Sleep(500);
-				// return;
-			}
-			else {
-				//
 			}
 			if (bT && errT > 0 || bC && errC > 0 || bL && errL > 0) {
 				if (bT)
@@ -2200,13 +2187,7 @@ void __fastcall TfmMain::TimerUpdateStateTimer(TObject *Sender) {
 					lbxInfo->AddItem("Состояние готовность = 0", NULL);
 				}
 				Application->ProcessMessages();
-				// err = CreateTables(TGlSettings::currFusion, (TGlSettings::numTube+1));
-				// bbtStopClick(bbtStop);
-				// return;
-				if (continueWait) {
-					//
-				}
-				else {
+				if (!continueWait) {
 					secYearBeginWait = SecondOfTheYear(Now());
 					continueWait = true;
 				}
@@ -2222,11 +2203,7 @@ void __fastcall TfmMain::TimerUpdateStateTimer(TObject *Sender) {
 		err = 0;
 	}
 	catch (Exception *ex) {
-		// err = -1;
 		TLog::ErrFullSaveLog(ex);
-		// AnsiString msg
-		// programSettings.colorMSG = programSettings.colorBrak;
-		// TExtFunction::UpdateStatusBar(programSettings.gsStatusBar, strStatus, _msg, programSettings.colorMSG);
 		MessageDlg(ex->Message, mtError, TMsgDlgButtons() << mbOK, NULL);
 	}
 
@@ -4940,7 +4917,7 @@ void __fastcall TfmMain::menuSetReadySecClick(TObject *Sender) {
 void __fastcall TfmMain::DeleteFromBaseTubeInfoClick(TObject *Sender) {
 	if (!PasswordDlg())
 		return;
-	TMessageForm *f = new TMessageForm(NULL);
+	TMessageForm *f = new TMessageForm;
 	f->Show();
     new CleanDataBaseThread((void *)f);
 }

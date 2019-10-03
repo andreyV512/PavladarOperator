@@ -53,6 +53,7 @@ using namespace std;
 #include <map>
 
 // ---------------------------------------------------------------------------
+const WM_USER_PROC = WM_USER + 123;
 class TfmMain : public TForm {
 __published: // IDE-managed Components
 	TMainMenu *MainMenu;
@@ -189,6 +190,7 @@ __published: // IDE-managed Components
 	void __fastcall DeleteFromBaseTubeInfoClick(TObject *Sender);
 
 protected: // User declarations
+	void __fastcall UserProc(tagMSG &msg, bool &handled);
 	// считаем прошлые установки
 	typedef   void(TfmMain::*TcheckPros)(int, int);
 	std::map<AnsiString, TcheckPros>checkPros;

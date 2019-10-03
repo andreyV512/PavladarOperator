@@ -6,6 +6,7 @@
 #include "CleanDataBaseThread.h"
 #include "QueryMessageForm.h"
 #include "unSQLDbModule.h"
+#include "unMain.h"
 #pragma package(smart_init)
 // ---------------------------------------------------------------------------
 
@@ -24,10 +25,6 @@
 
 __fastcall CleanDataBaseThread::CleanDataBaseThread(void *f)
 	: TThread(false), f(f) {
-}
-
-void __fastcall CleanDataBaseThread::UpdateCaption() {
-	((TMessageForm *)f)->Close();
 }
 
 // ---------------------------------------------------------------------------
@@ -51,8 +48,12 @@ void __fastcall CleanDataBaseThread::Execute() {
 		SqlDBModule->queryQuick->ExecSQL();
 		SqlDBModule->queryQuick->Close();
 	}
-	UpdateCaption();
+	PostMessage(Application->Handle, WM_USER_PROC, (unsigned)CloseWindow, (unsigned)f);
 	CloseHandle(sem);
 	delete this;
 }
 // ---------------------------------------------------------------------------
+void CleanDataBaseThread::CloseWindow(void *param)
+{
+	delete ((TMessageForm *)param);
+}

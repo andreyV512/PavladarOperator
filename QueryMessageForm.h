@@ -20,9 +20,7 @@ __published:	// IDE-managed Components
 private:	// User declarations
     unsigned currentTime;
 public:		// User declarations
-	__fastcall TMessageForm(TComponent* Owner);
+	__fastcall TMessageForm();
 };
-//---------------------------------------------------------------------------
-extern PACKAGE TMessageForm *MessageForm;
 //---------------------------------------------------------------------------
 #endif
