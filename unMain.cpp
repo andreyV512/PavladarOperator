@@ -148,9 +148,6 @@ int TfmMain::CreateTables(int _numFusion, int _numTube) {
 			strSql += ",:pindSopName";
 			strSql += ",:pnumTube";
 			strSql += ",:pcurrFusion";
-			// strSql += ",'";
-			// strSql += FormatDateTime("yyyy-dd-mm hh:mm:ss", Now());
-			// strSql += "'";
 			strSql += ",:pDateCreate";
 			strSql += ",:ppathFileNameLong";
 			strSql += ",:pcountZones";
@@ -227,14 +224,6 @@ int TfmMain::CreateTables(int _numFusion, int _numTube) {
 				->Value = TGlSettings::currMagnetT;
 			SqlDBModule->queryQuick->ExecSQL();
 			SqlDBModule->queryQuick->Parameters->Clear();
-			// для возможности внешнего ключа старое
-			// strSql = "SELECT @@IDENTITY AS 'LAST_ID';";
-			// SqlDBModule->queryQuick->Close();
-			// SqlDBModule->queryQuick->SQL->Text = strSql;
-			// SqlDBModule->queryQuick->Open();
-			// id_tube = SqlDBModule->queryQuick->FieldByName("LAST_ID")->AsInteger;
-			// SqlDBModule->queryQuick->Close();
-			// --------
 			// 12 по поперечнику
 			InsertCrossRow(_numTube, _numFusion);
 			// 32 по продольнику
@@ -396,7 +385,6 @@ void __fastcall TfmMain::bbtReadyClick(TObject *Sender) {
 			CreateTables(TGlSettings::currFusion, TGlSettings::numTube);
 		}
 		int aa = TGlSettings::numTube;
-		// Sleep(2000);
 		// serg5
 		SqlDBModule->UpdIntSql("currentSettings", "ParamValueFloat",
 			TGlSettings::currFusion, "UPPER(ParamName)=UPPER('numCurrFuzion')");
@@ -415,16 +403,11 @@ void __fastcall TfmMain::bbtReadyClick(TObject *Sender) {
 		lbxInfo->AddItem("Выставляем готовность при старте", NULL);
 		Application->ProcessMessages();
 		InitCharts();
-		// if (TGlSettings::isSOP == 1) {
 		if (menuSOP->Checked) {
 			bbtMode->Caption = "РЕЖИМ СОП";
 			bbtMode->Font->Color = clBlue;
 			lbxInfo->AddItem("РЕЖИМ СОП", NULL);
 		}
-		else {
-			//
-		}
-		// pThreadWork = new ThreadWork(true, bbtMode, bbtCounter);
 		secYearBeginWait = SecondOfTheYear(Now());
 		continueWait = false;
 		lbxInfo->AddItem("continueWait = false", NULL);
@@ -435,9 +418,6 @@ void __fastcall TfmMain::bbtReadyClick(TObject *Sender) {
 	catch (Exception *ex) {
 		err = -1;
 		TLog::ErrFullSaveLog(ex);
-		// AnsiString msg
-		// programSettings.colorMSG = programSettings.colorBrak;
-		// TExtFunction::UpdateStatusBar(programSettings.gsStatusBar, strStatus, _msg, programSettings.colorMSG);
 		MessageDlg(ex->Message, mtError, TMsgDlgButtons() << mbOK, NULL);
 	}
 }
@@ -469,8 +449,6 @@ void __fastcall TfmMain::bbtStopClick(TObject *Sender) {
 	lbxInfo->AddItem("isReady=0", NULL);
 	// serg4
 	TGlSettings::currFusionOld = TGlSettings::currFusion;
-	// testCounter = 0;
-	// BitBtn1->Enabled = false;
 	menuSettings->Enabled = true;
 	menuTools->Enabled = true;
 	TGlSettings::isWorkState = false;
@@ -528,15 +506,14 @@ void __fastcall TfmMain::CheckBox(TObject *Sender) {
 }
 
 // ---------------------------------------------------------------------------
-void __fastcall TfmMain::UserProc(tagMSG &msg, bool &handled)
-{
-	if(WM_USER_PROC == msg.message)
-	{
+void __fastcall TfmMain::UserProc(tagMSG &msg, bool &handled) {
+	if (WM_USER_PROC == msg.message) {
 		(*(void(*)(void *))msg.wParam)((void *)msg.lParam);
 		handled = true;
-    }
+	}
 }
-//-----------------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------
 void __fastcall TfmMain::FormCreate(TObject *Sender) {
 	Application->OnMessage = UserProc;
 	// ------------загружаем чекбоксы
@@ -561,12 +538,6 @@ void __fastcall TfmMain::FormCreate(TObject *Sender) {
 	TGlSettings::passwordEdit = "1234";
 	AnsiString strTmp = "";
 	try {
-		// SqlDBModule->FillComboBox("tubesTypeSize ", "typeSizeName", "isActive = 1 ", cbxTubesTypeSize);
-		// SqlDBModule->FillComboBox("SteelGrades", "steelGradeName", "isActive = 1 ", cbxSteelGrades);
-		// SqlDBModule->FillComboBox("NormDocs", "normDocName", " isActive = 1 ", cbxNormDocs);
-		// SqlDBModule->FillComboBox("Operators", "operatorName", "isActive = 1 ", cbxOperators);
-		// SqlDBModule->FillComboBox("WorkShifts", "workShiftName", "isActive = 1 ", cbxWorkShifts);
-		// SqlDBModule->FillComboBox("Sops", "SopName", "isActive = 1 ", cbxSops);
 		SqlDBModule->UpdBoolSql("flags", "isDataSendCompleet", 0, "isActual=1");
 		SqlDBModule->UpdIntSql("flags", "isReady", 0, NULL);
 		lbxInfo->AddItem("isReady=0", NULL);
@@ -580,8 +551,6 @@ void __fastcall TfmMain::FormCreate(TObject *Sender) {
 		FillComboboxses();
 		LoadInitSettings();
 		GetAndSendIP_MAC();
-		// testCounter = 0;
-
 		AnsiString strSql = "SELECT [dbo].[GetDBSizeMb]() as F1";
 		double szDb = SqlDBModule->GetDoubleFromFunctionSql(strSql, err);
 		if (szDb > 9000.0) {
@@ -617,10 +586,6 @@ void __fastcall TfmMain::ApplicationEventsMessage(tagMSG &Msg, bool &Handled) {
 		MessageDlg("Обновили справочники", mtInformation,
 			TMsgDlgButtons() << mbOK, NULL);
 	}
-	else {
-		//
-	}
-
 }
 
 int TfmMain::FillComboboxses() {
@@ -762,12 +727,7 @@ int TfmMain::ReLoadInitSettings() {
 		strTmp = StringReplace(strTmp, ".", ",",
 			ReplaceFlags << rfReplaceAll << rfIgnoreCase);
 		TGlSettings::currMagnetT = StrToFloat(strTmp);
-		// strTmp=SqlDBModule->GetStrFromFunctionSql(strSql, err);
-		// strTmp = StringReplace(strTmp, ".", ",", ReplaceFlags << rfReplaceAll << rfIgnoreCase);
-		// TGlSettings::currMagnetC = StrToFloat(strTmp);
 		if (err != 0 || TGlSettings::currMagnetT == -1) {
-			// TGlSettings::currMagnetC = 5;
-			// double GetFloatFieldSQL(AnsiString _tableName,AnsiString _fieldName, AnsiString _where, double _default,int &err);
 			TGlSettings::currMagnetT =
 				SqlDBModule->GetFloatFieldSQL("TypeSizesParams", "currMagnetT",
 				"indTypeSize=" + IntToStr(TGlSettings::indTypeSize), 5, err);
@@ -787,15 +747,6 @@ int TfmMain::ReLoadInitSettings() {
 				"indTypeSize=" + IntToStr(TGlSettings::indTypeSize), 20, err);
 			tmpDouble = TGlSettings::thresholdTUp;
 		}
-		else {
-			//
-		}
-		// ----------------------
-		// strSql = "SELECT [dbo].[GetBorderThickDownXML] (";
-		// strSql += IntToStr(TGlSettings::currFusion);
-		// strSql += ",";
-		// strSql += IntToStr(TGlSettings::numTube - 1);
-		// strSql += ") as F1";
 		strSql = "SELECT [dbo].[GetTzBorderTDown] (";
 		strSql += IntToStr(TGlSettings::indTypeSize);
 		strSql += ") as F1";
@@ -4914,11 +4865,12 @@ void __fastcall TfmMain::menuSetReadySecClick(TObject *Sender) {
 	}
 
 }
+
 void __fastcall TfmMain::DeleteFromBaseTubeInfoClick(TObject *Sender) {
 	if (!PasswordDlg())
 		return;
 	TMessageForm *f = new TMessageForm;
 	f->Show();
-    new CleanDataBaseThread((void *)f);
+	new CleanDataBaseThread((void *)f);
 }
 // ---------------------------------------------------------------------------
