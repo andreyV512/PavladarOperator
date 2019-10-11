@@ -58,21 +58,7 @@ void __fastcall ThreadWork::UpdateControlsAndSignals() {
 			pbbtMode->Font->Color = clBlack;
 		}
 		//----------------------
-		//if (isReady && TGlSettings::isSOP == 1) {
-//		if (isReady && menuSOP->Checked) {
-//			pbbtMode->Font->Color = clBlue;
-//		}
-//		else {
-//			//pbbtMode->Font->Color = clGreen;
-//		}
-		//-----------------------------------
-		//if (isReady && TGlSettings::repeatControl==1) {
-//		if (isReady && menuRepeatControl->Checked)
-//			pbbtMode->Font->Color = clRed;
-//		}
-//		else {
-//			//pbbtMode->Font->Color = clGreen;
-//		}
+	
 		Application->ProcessMessages();
 	}
 	catch (Exception *ex) {

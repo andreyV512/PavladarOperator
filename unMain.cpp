@@ -8,6 +8,7 @@
 #include "PasswordDlg.h"
 #include "QueryMessageForm.h"
 #include "CleanDataBaseThread.h"
+#include "tools_debug/DebugMess.h"
 // ---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
@@ -262,11 +263,15 @@ void __fastcall TfmMain::bbtReadyClick(TObject *Sender) {
 		if (menuRepeatControl->Checked) {
 			if (MessageDlg("ВКЛЮЧЕН РЕЖИМ ПОВТОРНОГО КОНТРОЛЯ!\n ПРОДОЛЖИТЬ?",
 				mtWarning, TMsgDlgButtons() << mbOK << mbCancel, 0) == mrOk) {
-				//
+				dprint("mess\n");
+                	PanelTopChoice->Enabled = false;
+					bbtReady->Enabled = false;
+					bbtSave->Enabled = false;
 			}
 			else {
-				return;
+			menuRepeatControl->Checked = false;
 			}
+			return;
 		}
 
 		if (menuSOP->Checked) {
@@ -365,6 +370,7 @@ void __fastcall TfmMain::bbtReadyClick(TObject *Sender) {
 		// повторный контроль
 		// if (TGlSettings::repeatControl) {
 		if (menuRepeatControl->Checked) {
+		dprint("delete\n");
 			TGlSettings::numTube = TGlSettings::repeatControlNumTube;
 			strSqlWhere = "numFusion=" + IntToStr(TGlSettings::currFusion) +
 				" and numTube=" + IntToStr(TGlSettings::numTube);
@@ -425,7 +431,7 @@ void __fastcall TfmMain::bbtReadyClick(TObject *Sender) {
 // ---------------------------------------------------------------------------
 class __store_base__ : public TfmMain {
 public:
-	void operator()(int &err);
+	bool operator()(int &err);
 	bool IsExist(bool crossBool, bool longBool, bool thickBool);
 	void Clean(const char *s);
 	void CleanThick();
@@ -465,6 +471,11 @@ void __fastcall TfmMain::bbtStopClick(TObject *Sender) {
 	int xerr = 0;
 
 	__store_base__ *sb = (__store_base__*)this;
+	if(menuRepeatControl->Checked)
+	{
+		menuRepeatControl->Checked = false;
+        return;
+    }
 	if (sb->IsExist(cbCross->Checked, cbLong->Checked, cbThick->Checked)
 		&& MessageDlg("ОСТАВИТЬ ТРУБУ БЕЗ РЕЗУЛЬТАТА ПО МОДУЛЮ?", mtWarning,
 		TMsgDlgButtons() << mbOK << mbCancel, 0) == mrCancel) {
@@ -960,6 +971,12 @@ void __fastcall TfmMain::bbtSaveClick(TObject *Sender) {
 			bbtMode->Caption = "РЕЖИМ СОП (типоразмер:" +
 				IntToStr(TGlSettings::indTypeSize) + ")";
 		}
+		else if(menuRepeatControl->Checked)
+		{
+            	bbtMode->Caption = "ПОВТОРНЫЙ КОНТРОЛЬ! (типоразмер:" +
+			IntToStr(TGlSettings::indTypeSize) + ")";
+		bbtMode->Font->Color = clRed;
+        }
 		else {
 			bbtMode->Caption = "РЕЖИМ КОНТРОЛЯ (типоразмер:" +
 				IntToStr(TGlSettings::indTypeSize) + ")";
@@ -1056,6 +1073,12 @@ void __fastcall TfmMain::bbtSaveClick(TObject *Sender) {
 		int tmpInt = TGlSettings::numTube;
 		if (menuRepeatControl->Checked) { // если повторный контроль
 			TGlSettings::numTube = TGlSettings::repeatControlNumTube;
+			dprint("repeat\n");
+            PanelTopChoice->Enabled = false;
+					bbtReady->Enabled = false;
+					bbtSave->Enabled = false;
+					TimerUpdateState->Enabled = true;
+                    return;
 		}
 		else {
 			//
@@ -1335,7 +1358,7 @@ void __fastcall TfmMain::menuExtInfoClick(TObject *Sender) {
 }
 
 // ---------------------------------------------------------------------------
-void __store_base__:: operator()(int &err) {
+bool __store_base__:: operator()(int &err) {
 
 	AnsiString strSqlWhere = "numFusion=" + IntToStr(TGlSettings::currFusion) +
 		" and numTube=" + IntToStr(TGlSettings::numTube);
@@ -1402,11 +1425,14 @@ void __store_base__:: operator()(int &err) {
 	}
 	if (menuSOP->Checked || menuRepeatControl->Checked) {
 		bbtStopClick(bbtStop);
-		// menuRepeatControl->Checked = false;
-		return;
+		menuRepeatControl->Checked = false;
+		dprint("checked\n");
+        bbtMode->Caption = "";
+		return true;
 	}
 
 	secYearBeginWait = SecondOfTheYear(Now());
+	return false;
 }
 
 bool __store_base__::IsExist(bool crossBool, bool longBool, bool thickBool) {
@@ -1953,11 +1979,13 @@ void __fastcall TfmMain::TimerUpdateStateTimer(TObject *Sender) {
 		}
 		if (TGlSettings::isWorkState && menuRepeatControl->Checked) {
 			bbtMode->Font->Color = clRed;
+			dprint("xrepeat\n");
 			bbtMode->Caption = "ПОВТОР КОНТРОЛЯ (типоразмер:" +
 				IntToStr(TGlSettings::indTypeSize) + ")";
 		}
 		if (TGlSettings::isWorkState && menuRepeatControl->Checked &&
 			menuRepeatControl->Checked) {
+			dprint("work state\n");
 			bbtMode->Font->Color = clRed;
 			bbtMode->Caption = "ПОВТОР КОНТРОЛЯ СОП(типоразмер:" +
 				IntToStr(TGlSettings::indTypeSize) + ")";
@@ -1966,6 +1994,7 @@ void __fastcall TfmMain::TimerUpdateStateTimer(TObject *Sender) {
 		isDataSendCompleet = SqlDBModule->GetBoolFieldSQL("flags",
 			"isDataSendCompleet", "isActual=1", 0, err);
 		if (TGlSettings::isWorkState || menuRepeatControl->Checked) {
+		dprint("xz\n");
 			SqlDBModule->UpdBoolSql("flags", "isDataSendCompleet", 0,
 				"isActual=1");
 			strSqlWhere = "numFusion=" + IntToStr(TGlSettings::currFusion) +
@@ -2086,6 +2115,7 @@ void __fastcall TfmMain::TimerUpdateStateTimer(TObject *Sender) {
 				TGlSettings::thresholdTUp * TGlSettings::thresholdTNominal /
 				100.0), -1);
 			if (!menuRepeatControl->Checked) { // если не повторный контроль
+			dprint("cccccc\n");
 				SqlDBModule->queryQuick->Close();
 				if (menuSOP->Checked) {
 					strSql =
@@ -2145,7 +2175,11 @@ void __fastcall TfmMain::TimerUpdateStateTimer(TObject *Sender) {
 				LongWord secNowWait = SecondOfTheYear(Now());
 			}
 			else if (bT || bC || bL) {
-				(*(__store_base__*)this)(err);
+				if((*(__store_base__*)this)(err))
+				{
+					CheckBrakCount(TGlSettings::currFusion);
+					return;
+                }
 			}
 			err = CheckBrakCount(TGlSettings::currFusion);
 		}
@@ -4621,6 +4655,7 @@ void __fastcall TfmMain::FormKeyDown(TObject *Sender, WORD &Key,
 // ---------------------------------------------------------------------------
 void __fastcall TfmMain::menuRepeatControlClick(TObject *Sender) {
 	menuRepeatControl->Checked = !menuRepeatControl->Checked;
+	dprint("not\n");
 	// TGlSettings::repeatControl = menuRepeatControl->Checked;
 	AnsiString strSqlWhere = "";
 	UnicodeString NewString = "";
@@ -4630,6 +4665,7 @@ void __fastcall TfmMain::menuRepeatControlClick(TObject *Sender) {
 	int newNum = 0;
 	// if (TGlSettings::repeatControl) {
 	if (menuRepeatControl->Checked) {
+		dprint("ccccgiygjuyyy\n");
 		bbtMode->Caption = "ПОВТОРНЫЙ КОНТРОЛЬ! (типоразмер:" +
 			IntToStr(TGlSettings::indTypeSize) + ")";
 		bbtMode->Font->Color = clRed;
@@ -4651,6 +4687,8 @@ void __fastcall TfmMain::menuRepeatControlClick(TObject *Sender) {
 		if (intTmp == 0) {
 			MessageDlg("Трубы с таким номером в плавке нет!", mtError,
 				TMsgDlgButtons() << mbOK, NULL);
+				menuRepeatControl->Checked = false;
+                bbtMode->Caption = "";
 			return;
 		}
 		else {
@@ -4658,11 +4696,24 @@ void __fastcall TfmMain::menuRepeatControlClick(TObject *Sender) {
 		}
 		TGlSettings::repeatControlNumTube = newNum;
 		// TGlSettings::numTube = newNum;
+		/*
 		strSqlWhere = " numFusion=" + IntToStr(TGlSettings::currFusion) +
 			" and numTube=" + IntToStr(TGlSettings::numTube);
 		SqlDBModule->UpdIntSql("resultTubeShort", "isEmpty", 1, strSqlWhere);
+		*/
 		// SqlDBModule->UpdFloatSql("currentSettings", "ParamValueFloat", TGlSettings::numTube, "UPPER(ParamName)=UPPER('numCurrTube')");
-		// menuRepeatControl->
+		AnsiString query =
+								"DELETE FROM resultTubeShort WHERE numTube =";
+							query += IntToStr(newNum);
+							query += "and numFusion=";
+							query += IntToStr(TGlSettings::currFusion);
+
+							SqlDBModule->queryQuick->Close();
+							SqlDBModule->queryQuick->SQL->Text = query;
+							SqlDBModule->queryQuick->ExecSQL();
+							SqlDBModule->queryQuick->Close();
+							CreateTables(TGlSettings::currFusion,
+								newNum);
 	}
 	else {
 		bbtMode->Caption = "РЕЖИМ КОНТРОЛЯ (типоразмер:" +

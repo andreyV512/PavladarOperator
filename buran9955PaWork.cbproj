@@ -46,6 +46,8 @@
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
+        <ILINK_LibraryPath>tools_debug\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+        <IncludePath>tools_debug\;$(IncludePath)</IncludePath>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_Locale>1049</VerInfo_Locale>
         <BCC_OutputDir>.\$(Config)\$(Platform)\Obj\</BCC_OutputDir>
@@ -151,6 +153,12 @@
             <DependentOn>ThreadWork.h</DependentOn>
             <BuildOrder>18</BuildOrder>
         </CppCompile>
+        <CppCompile Include="tools_debug\DebugMess.cpp">
+            <BuildOrder>23</BuildOrder>
+        </CppCompile>
+        <None Include="tools_debug\DebugMess.h">
+            <BuildOrder>24</BuildOrder>
+        </None>
         <CppCompile Include="unFmBackup.cpp">
             <Form>fmCreateBackup</Form>
             <FormType>dfm</FormType>
