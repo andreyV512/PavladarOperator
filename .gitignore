@@ -2,7 +2,7 @@ __history/
 Debug/
 OutExe/
 ~*
-/*.stat
-/*.cbproj.local
-
+*.stat
+*.cbproj.local
 __recovery/
+*_
