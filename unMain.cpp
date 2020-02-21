@@ -564,7 +564,7 @@ void __fastcall TfmMain::FormCreate(TObject *Sender) {
 		GetAndSendIP_MAC();
 		AnsiString strSql = "SELECT [dbo].[GetDBSizeMb]() as F1";
 		double szDb = SqlDBModule->GetDoubleFromFunctionSql(strSql, err);
-		if (szDb > 9000.0) {
+	   	if (szDb > 5000.0) {
 			MessageDlg(
 				"Предупреждение, размер базы приближается к максимальному 10Gb, Текущий размер: " +
 				FloatToStrF(0.001 * szDb, ffFixed, 6, 2) + "Gb", mtInformation,
@@ -4665,7 +4665,6 @@ void __fastcall TfmMain::menuRepeatControlClick(TObject *Sender) {
 	int newNum = 0;
 	// if (TGlSettings::repeatControl) {
 	if (menuRepeatControl->Checked) {
-		dprint("ccccgiygjuyyy\n");
 		bbtMode->Caption = "ПОВТОРНЫЙ КОНТРОЛЬ! (типоразмер:" +
 			IntToStr(TGlSettings::indTypeSize) + ")";
 		bbtMode->Font->Color = clRed;
