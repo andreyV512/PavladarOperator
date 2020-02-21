@@ -286,8 +286,8 @@ void __fastcall TfmMain::bbtReadyClick(TObject *Sender) {
 		else {
 			//
 		}
-		if (MessageDlg("ТАКОЙ НОМЕР ПЛАВКИ УЖЕ БЫЛ\n ПРОДОЛЖИТЬ?", mtWarning,
-			TMsgDlgButtons() << mbOK << mbCancel, 0) == mrOk) {
+	   //	if (MessageDlg("ТАКОЙ НОМЕР ПЛАВКИ УЖЕ БЫЛ\n ПРОДОЛЖИТЬ?", mtWarning,
+	  //		TMsgDlgButtons() << mbOK << mbCancel, 0) == mrOk) {
 			// if (TGlSettings::isSOP == 1) {
 			if (menuSOP->Checked) {
 				// СОП
@@ -308,7 +308,7 @@ void __fastcall TfmMain::bbtReadyClick(TObject *Sender) {
 				TGlSettings::numTube = SqlDBModule->GetIntFromSql(strSql);
 				UnicodeString NewString = IntToStr(TGlSettings::numTube);
 
-				AnsiString mess = "Номер трубы может быть больше 1 и меньше " +
+				AnsiString mess = "Номер трубы может быть больше равно 1 и меньше " +
 					NewString + ":";
 				if (InputQuery("Текущий номер трубы", mess.c_str(), NewString))
 				{
