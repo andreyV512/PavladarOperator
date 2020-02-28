@@ -1,7 +1,7 @@
 object fmMain: TfmMain
   Left = 0
   Top = 0
-  Caption = #1041#1091#1088#1072#1085'9955-191'#1055#1072' v.18072019'
+  Caption = #1041#1091#1088#1072#1085'9955-191'#1055#1072' v.28022020'
   ClientHeight = 725
   ClientWidth = 1028
   Color = clBtnFace
@@ -324,8 +324,6 @@ object fmMain: TfmMain
       TabOrder = 1
       WordWrap = True
       OnClick = bbtReadyClick
-      ExplicitLeft = 141
-      ExplicitTop = 0
     end
     object bbtStop: TBitBtn
       Left = 283

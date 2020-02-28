@@ -31,11 +31,28 @@ void __fastcall TfmMain::menuAboutClick(TObject *Sender) {
 	fmAboutBox->Close();
 	fmAboutBox = NULL;
 }
+//-------------------------------------------------------------
+bool TfmMain::TestResult(char *table, int sens, int tube, int fusion)
+{
+	AnsiString strSql = "SELECT count(*) as cnt FROM ";
 
+		strSql += table;
+		strSql += " WHERE sensorNum=" + IntToStr(sens);
+		strSql += " AND numTube=" + IntToStr(tube);
+		strSql += " AND numFusion=" + IntToStr(fusion);
+		SqlDBModule->queryQuick->SQL->Text = strSql;
+		SqlDBModule->queryQuick->Open();
+		int cnt = SqlDBModule->queryQuick->FieldByName("cnt")->AsInteger;
+	  //	ADOQueryDB->FieldByName("F1")->AsInteger;
+		SqlDBModule->queryQuick->Close();
+        return 0 != cnt;
+}
 // ---------------------------------------------------------------------------
 void TfmMain::InsertCrossRow(int _numTube, int _numFusion) {
 	if (cbCross->Checked)
 		for (int i = 0; i < TGlSettings::countSensorsCross; i++) {
+		 if(!TestResult("resultCross", 1 + i, _numTube, _numFusion))
+		 {
 			AnsiString strSql = "INSERT INTO resultCross(";
 			strSql += "sensorNum, numTube,numFusion)";
 			strSql += " VALUES(";
@@ -48,8 +65,9 @@ void TfmMain::InsertCrossRow(int _numTube, int _numFusion) {
 			SqlDBModule->queryQuick->SQL->Text = strSql;
 			SqlDBModule->queryQuick->ExecSQL();
 			SqlDBModule->queryQuick->Close();
+		 }
 		}
-	else {
+  /*	else {
 		AnsiString strSql = "DELETE FROM resultCross WHERE numTube=";
 		strSql += IntToStr(_numTube);
 		strSql += " AND numFusion=";
@@ -57,12 +75,14 @@ void TfmMain::InsertCrossRow(int _numTube, int _numFusion) {
 		SqlDBModule->queryQuick->SQL->Text = strSql;
 		SqlDBModule->queryQuick->ExecSQL();
 		SqlDBModule->queryQuick->Close();
-	}
+	} */
 }
 
 void TfmMain::InsertLongRow(int _numTube, int _numFusion) {
 	if (cbLong->Checked)
 		for (int i = 0; i < TGlSettings::countSensorsLong; i++) {
+		 if(!TestResult("resultLong", 1 + i, _numTube, _numFusion))
+		 {
 			AnsiString strSql = "INSERT INTO resultLong(";
 			strSql += "sensorNum, numTube,numFusion)";
 			strSql += " VALUES(";
@@ -75,8 +95,9 @@ void TfmMain::InsertLongRow(int _numTube, int _numFusion) {
 			SqlDBModule->queryQuick->SQL->Text = strSql;
 			SqlDBModule->queryQuick->ExecSQL();
 			SqlDBModule->queryQuick->Close();
+		 }
 		}
-	else {
+   /*	else {
 		AnsiString strSql = "DELETE FROM resultLong WHERE numTube=";
 		strSql += IntToStr(_numTube);
 		strSql += " AND numFusion=";
@@ -84,12 +105,15 @@ void TfmMain::InsertLongRow(int _numTube, int _numFusion) {
 		SqlDBModule->queryQuick->SQL->Text = strSql;
 		SqlDBModule->queryQuick->ExecSQL();
 		SqlDBModule->queryQuick->Close();
-	}
+	}  */
 }
 
 void TfmMain::InsertThickRow(int _numTube, int _numFusion) {
 	if (cbThick->Checked)
+	{
 		for (int i = 0; i < TGlSettings::countRecordsThick; i++) {
+		  if(!TestResult("resultThick", 1 + i, _numTube, _numFusion))
+		  {
 			AnsiString strSql = "INSERT INTO resultThick(";
 			strSql += "sensorNum, numTube,numFusion)";
 			strSql += " VALUES(";
@@ -102,8 +126,10 @@ void TfmMain::InsertThickRow(int _numTube, int _numFusion) {
 			SqlDBModule->queryQuick->SQL->Text = strSql;
 			SqlDBModule->queryQuick->ExecSQL();
 			SqlDBModule->queryQuick->Close();
-		}
-	else {
+		  }
+		  }
+		  }
+   /*	else {
 		AnsiString strSql = "DELETE FROM resultThick WHERE numTube=";
 		strSql += IntToStr(_numTube);
 		strSql += " AND numFusion=";
@@ -111,7 +137,7 @@ void TfmMain::InsertThickRow(int _numTube, int _numFusion) {
 		SqlDBModule->queryQuick->SQL->Text = strSql;
 		SqlDBModule->queryQuick->ExecSQL();
 		SqlDBModule->queryQuick->Close();
-	}
+	} */
 }
 
 int TfmMain::CreateTables(int _numFusion, int _numTube) {
@@ -347,7 +373,6 @@ void __fastcall TfmMain::bbtReadyClick(TObject *Sender) {
 			if (TGlSettings::numTube == 0) {
 				TGlSettings::numTube++;
 			}
-		}
 		SqlDBModule->UpdBoolSql("flags", "isDataSendCompleet", 0, "isActual=1");
 		TGlSettings::thresholdTNominal =
 			SqlDBModule->GetFloatFieldSQL("tubesTypeSize", "tubeThick",

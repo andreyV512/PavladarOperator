@@ -274,7 +274,8 @@ protected: // User declarations
 	bool continueWait;
     int numRepeatControl;
 
-    void __fastcall CheckBox(TObject *Sender);
+	void __fastcall CheckBox(TObject *Sender);
+    bool TestResult(char *table, int sens, int tube, int fusion);
 public: // User declarations
 	__fastcall TfmMain(TComponent* Owner);
 };
