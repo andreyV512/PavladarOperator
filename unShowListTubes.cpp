@@ -1165,6 +1165,7 @@ void __fastcall TfmShowListTubes::miDeleteTubeClick(TObject *Sender) {
 				return;
 			}
 			else {
+			/*
 				AnsiString query =
 					"DELETE FROM resultTubeShort WHERE numTube=";
 				query += IntToStr(numTube);
@@ -1175,6 +1176,7 @@ void __fastcall TfmShowListTubes::miDeleteTubeClick(TObject *Sender) {
 				SqlDBModule->queryQuick->SQL->Text = query;
 				SqlDBModule->queryQuick->ExecSQL();
 				SqlDBModule->queryQuick->Close();
+                */
                 timerRefreshTimer(Sender);
 			}
 		}

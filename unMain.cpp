@@ -251,6 +251,7 @@ int TfmMain::CreateTables(int _numFusion, int _numTube) {
 				->Value = TGlSettings::currMagnetT;
 			SqlDBModule->queryQuick->ExecSQL();
 			SqlDBModule->queryQuick->Parameters->Clear();
+
 			// 12 по поперечнику
 			InsertCrossRow(_numTube, _numFusion);
 			// 32 по продольнику
@@ -350,6 +351,7 @@ void __fastcall TfmMain::bbtReadyClick(TObject *Sender) {
 							}
 
 							TGlSettings::numTube = n;
+							/*
 							AnsiString query =
 								"DELETE FROM resultTubeShort WHERE numTube >=";
 							query += IntToStr(TGlSettings::numTube);
@@ -360,6 +362,7 @@ void __fastcall TfmMain::bbtReadyClick(TObject *Sender) {
 							SqlDBModule->queryQuick->SQL->Text = query;
 							SqlDBModule->queryQuick->ExecSQL();
 							SqlDBModule->queryQuick->Close();
+							*/
 							CreateTables(TGlSettings::currFusion,
 								TGlSettings::numTube);
 						}
@@ -395,6 +398,7 @@ void __fastcall TfmMain::bbtReadyClick(TObject *Sender) {
 		// повторный контроль
 		// if (TGlSettings::repeatControl) {
 		if (menuRepeatControl->Checked) {
+		/*
 		dprint("delete\n");
 			TGlSettings::numTube = TGlSettings::repeatControlNumTube;
 			strSqlWhere = "numFusion=" + IntToStr(TGlSettings::currFusion) +
@@ -410,6 +414,7 @@ void __fastcall TfmMain::bbtReadyClick(TObject *Sender) {
 			// прибили переконтролируемую создали вместо нее пустую
 			SqlDBModule->UpdFloatSql("resultTubeShort", "numTube",
 				-(TGlSettings::numTube + 3000), strSqlWhere);
+				*/
 			err = CreateTables(TGlSettings::currFusion, TGlSettings::numTube);
 		}
 		else {
@@ -4726,6 +4731,7 @@ void __fastcall TfmMain::menuRepeatControlClick(TObject *Sender) {
 		SqlDBModule->UpdIntSql("resultTubeShort", "isEmpty", 1, strSqlWhere);
 		*/
 		// SqlDBModule->UpdFloatSql("currentSettings", "ParamValueFloat", TGlSettings::numTube, "UPPER(ParamName)=UPPER('numCurrTube')");
+		/*
 		AnsiString query =
 								"DELETE FROM resultTubeShort WHERE numTube =";
 							query += IntToStr(newNum);
@@ -4736,6 +4742,7 @@ void __fastcall TfmMain::menuRepeatControlClick(TObject *Sender) {
 							SqlDBModule->queryQuick->SQL->Text = query;
 							SqlDBModule->queryQuick->ExecSQL();
 							SqlDBModule->queryQuick->Close();
+							*/
 							CreateTables(TGlSettings::currFusion,
 								newNum);
 	}
