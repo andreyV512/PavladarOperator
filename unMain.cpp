@@ -48,9 +48,9 @@ bool TfmMain::TestResult(char *table, int sens, int tube, int fusion)
 }
 // ---------------------------------------------------------------------------
 void TfmMain::InsertCrossRow(int _numTube, int _numFusion) {
-	if (cbCross->Checked)
+  //	if (cbCross->Checked)
 		for (int i = 0; i < TGlSettings::countSensorsCross; i++) {
-		 if(!TestResult("resultCross", 1 + i, _numTube, _numFusion))
+		 //(!TestResult("resultCross", 1 + i, _numTube, _numFusion))
 		 {
 			AnsiString strSql = "INSERT INTO resultCross(";
 			strSql += "sensorNum, numTube,numFusion)";
@@ -78,9 +78,9 @@ void TfmMain::InsertCrossRow(int _numTube, int _numFusion) {
 }
 
 void TfmMain::InsertLongRow(int _numTube, int _numFusion) {
-	if (cbLong->Checked)
+  //	if (cbLong->Checked)
 		for (int i = 0; i < TGlSettings::countSensorsLong; i++) {
-		 if(!TestResult("resultLong", 1 + i, _numTube, _numFusion))
+   //		 if(!TestResult("resultLong", 1 + i, _numTube, _numFusion))
 		 {
 			AnsiString strSql = "INSERT INTO resultLong(";
 			strSql += "sensorNum, numTube,numFusion)";
@@ -108,10 +108,10 @@ void TfmMain::InsertLongRow(int _numTube, int _numFusion) {
 }
 
 void TfmMain::InsertThickRow(int _numTube, int _numFusion) {
-	if (cbThick->Checked)
+   //	if (cbThick->Checked)
 	{
 		for (int i = 0; i < TGlSettings::countRecordsThick; i++) {
-		  if(!TestResult("resultThick", 1 + i, _numTube, _numFusion))
+	//	  if(!TestResult("resultThick", 1 + i, _numTube, _numFusion))
 		  {
 			AnsiString strSql = "INSERT INTO resultThick(";
 			strSql += "sensorNum, numTube,numFusion)";
