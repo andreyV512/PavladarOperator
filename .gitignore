@@ -6,3 +6,4 @@ OutExe/
 *.cbproj.local
 __recovery/
 *_
+*.cbproj.local
