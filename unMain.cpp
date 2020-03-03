@@ -43,7 +43,6 @@ bool TfmMain::TestResult(char *table, int sens, int tube, int fusion)
 		SqlDBModule->queryQuick->SQL->Text = strSql;
 		SqlDBModule->queryQuick->Open();
 		int cnt = SqlDBModule->queryQuick->FieldByName("cnt")->AsInteger;
-	  //	ADOQueryDB->FieldByName("F1")->AsInteger;
 		SqlDBModule->queryQuick->Close();
         return 0 != cnt;
 }
@@ -67,6 +66,7 @@ void TfmMain::InsertCrossRow(int _numTube, int _numFusion) {
 			SqlDBModule->queryQuick->Close();
 		 }
 		}
+		/*
 		AnsiString strSql = "DELETE FROM resultCross WHERE numTube=";
 		strSql += IntToStr(_numTube);
 		strSql += " AND numFusion=";
@@ -74,6 +74,7 @@ void TfmMain::InsertCrossRow(int _numTube, int _numFusion) {
 		SqlDBModule->queryQuick->SQL->Text = strSql;
 		SqlDBModule->queryQuick->ExecSQL();
 		SqlDBModule->queryQuick->Close();
+		*/
 }
 
 void TfmMain::InsertLongRow(int _numTube, int _numFusion) {
@@ -95,6 +96,7 @@ void TfmMain::InsertLongRow(int _numTube, int _numFusion) {
 			SqlDBModule->queryQuick->Close();
 		 }
 		}
+		/*
 		AnsiString strSql = "DELETE FROM resultLong WHERE numTube=";
 		strSql += IntToStr(_numTube);
 		strSql += " AND numFusion=";
@@ -102,6 +104,7 @@ void TfmMain::InsertLongRow(int _numTube, int _numFusion) {
 		SqlDBModule->queryQuick->SQL->Text = strSql;
 		SqlDBModule->queryQuick->ExecSQL();
 		SqlDBModule->queryQuick->Close();
+		*/
 }
 
 void TfmMain::InsertThickRow(int _numTube, int _numFusion) {
@@ -125,6 +128,7 @@ void TfmMain::InsertThickRow(int _numTube, int _numFusion) {
 		  }
 		  }
 		  }
+		  /*
 		AnsiString strSql = "DELETE FROM resultThick WHERE numTube=";
 		strSql += IntToStr(_numTube);
 		strSql += " AND numFusion=";
@@ -132,6 +136,7 @@ void TfmMain::InsertThickRow(int _numTube, int _numFusion) {
 		SqlDBModule->queryQuick->SQL->Text = strSql;
 		SqlDBModule->queryQuick->ExecSQL();
 		SqlDBModule->queryQuick->Close();
+        */
 }
 
 int TfmMain::CreateTables(int _numFusion, int _numTube) {
