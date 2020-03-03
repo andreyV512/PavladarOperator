@@ -67,7 +67,6 @@ void TfmMain::InsertCrossRow(int _numTube, int _numFusion) {
 			SqlDBModule->queryQuick->Close();
 		 }
 		}
-  /*	else {
 		AnsiString strSql = "DELETE FROM resultCross WHERE numTube=";
 		strSql += IntToStr(_numTube);
 		strSql += " AND numFusion=";
@@ -75,7 +74,6 @@ void TfmMain::InsertCrossRow(int _numTube, int _numFusion) {
 		SqlDBModule->queryQuick->SQL->Text = strSql;
 		SqlDBModule->queryQuick->ExecSQL();
 		SqlDBModule->queryQuick->Close();
-	} */
 }
 
 void TfmMain::InsertLongRow(int _numTube, int _numFusion) {
@@ -97,7 +95,6 @@ void TfmMain::InsertLongRow(int _numTube, int _numFusion) {
 			SqlDBModule->queryQuick->Close();
 		 }
 		}
-   /*	else {
 		AnsiString strSql = "DELETE FROM resultLong WHERE numTube=";
 		strSql += IntToStr(_numTube);
 		strSql += " AND numFusion=";
@@ -105,7 +102,6 @@ void TfmMain::InsertLongRow(int _numTube, int _numFusion) {
 		SqlDBModule->queryQuick->SQL->Text = strSql;
 		SqlDBModule->queryQuick->ExecSQL();
 		SqlDBModule->queryQuick->Close();
-	}  */
 }
 
 void TfmMain::InsertThickRow(int _numTube, int _numFusion) {
@@ -129,7 +125,6 @@ void TfmMain::InsertThickRow(int _numTube, int _numFusion) {
 		  }
 		  }
 		  }
-   /*	else {
 		AnsiString strSql = "DELETE FROM resultThick WHERE numTube=";
 		strSql += IntToStr(_numTube);
 		strSql += " AND numFusion=";
@@ -137,7 +132,6 @@ void TfmMain::InsertThickRow(int _numTube, int _numFusion) {
 		SqlDBModule->queryQuick->SQL->Text = strSql;
 		SqlDBModule->queryQuick->ExecSQL();
 		SqlDBModule->queryQuick->Close();
-	} */
 }
 
 int TfmMain::CreateTables(int _numFusion, int _numTube) {
@@ -351,7 +345,6 @@ void __fastcall TfmMain::bbtReadyClick(TObject *Sender) {
 							}
 
 							TGlSettings::numTube = n;
-							/*
 							AnsiString query =
 								"DELETE FROM resultTubeShort WHERE numTube >=";
 							query += IntToStr(TGlSettings::numTube);
@@ -362,7 +355,6 @@ void __fastcall TfmMain::bbtReadyClick(TObject *Sender) {
 							SqlDBModule->queryQuick->SQL->Text = query;
 							SqlDBModule->queryQuick->ExecSQL();
 							SqlDBModule->queryQuick->Close();
-							*/
 							CreateTables(TGlSettings::currFusion,
 								TGlSettings::numTube);
 						}
@@ -4731,7 +4723,6 @@ void __fastcall TfmMain::menuRepeatControlClick(TObject *Sender) {
 		SqlDBModule->UpdIntSql("resultTubeShort", "isEmpty", 1, strSqlWhere);
 		*/
 		// SqlDBModule->UpdFloatSql("currentSettings", "ParamValueFloat", TGlSettings::numTube, "UPPER(ParamName)=UPPER('numCurrTube')");
-		/*
 		AnsiString query =
 								"DELETE FROM resultTubeShort WHERE numTube =";
 							query += IntToStr(newNum);
@@ -4742,7 +4733,6 @@ void __fastcall TfmMain::menuRepeatControlClick(TObject *Sender) {
 							SqlDBModule->queryQuick->SQL->Text = query;
 							SqlDBModule->queryQuick->ExecSQL();
 							SqlDBModule->queryQuick->Close();
-							*/
 							CreateTables(TGlSettings::currFusion,
 								newNum);
 	}
