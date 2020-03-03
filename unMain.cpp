@@ -508,7 +508,7 @@ void __fastcall TfmMain::bbtStopClick(TObject *Sender) {
     }
 	if (sb->IsExist(cbCross->Checked, cbLong->Checked, cbThick->Checked)
 		&& MessageDlg("нярюбхрэ рпсас аег пегскэрюрю он лндскч?", mtWarning,
-		TMsgDlgButtons() << mbOK << mbCancel, 0) == mrCancel) {
+		TMsgDlgButtons() << mbOK << mbCancel, 0) == mrOk) {
 		(*sb)(xerr);
 	}
 	else {
