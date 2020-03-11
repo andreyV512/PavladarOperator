@@ -4,21 +4,20 @@
 #pragma hdrstop
 #include <tchar.h>
 //---------------------------------------------------------------------------
-USEFORM("unSetDirectory.cpp", fmSetDirectory);
-USEFORM("unShowListTubes.cpp", fmShowListTubes);
 USEFORM("unMain.cpp", fmMain);
-USEFORM("unFmViewZone.cpp", fmViewZone);
-USEFORM("Unit1.cpp", Form1);
-USEFORM("unSQLDbModule.cpp", SqlDBModule); /* TDataModule: File Type */
-USEFORM("unFmShowZones.cpp", fmShowZones);
-USEFORM("unFmBackup.cpp", fmCreateBackup);
-USEFORM("ABOUT_NTC_NK_URAN.cpp", fmAboutBox);
-USEFORM("unFmModifyRecord.cpp", fmModifyRecord);
+USEFORM("unSetDirectory.cpp", fmSetDirectory);
 USEFORM("unFmReport.cpp", fmReport);
-USEFORM("unFmGSettings.cpp", fmGSettings);
+USEFORM("unFmShowZones.cpp", fmShowZones);
+USEFORM("unFmViewZone.cpp", fmViewZone);
+USEFORM("unShowListTubes.cpp", fmShowListTubes);
+USEFORM("unSQLDbModule.cpp", SqlDBModule); /* TDataModule: File Type */
+USEFORM("unFmModifyRecord.cpp", fmModifyRecord);
+USEFORM("QueryMessageForm.cpp", MessageForm);
+USEFORM("ABOUT_NTC_NK_URAN.cpp", fmAboutBox);
 USEFORM("unFmInfo.cpp", fmInfo);
 USEFORM("unFmMessage.cpp", fmMessage);
-USEFORM("QueryMessageForm.cpp", MessageForm);
+USEFORM("unFmBackup.cpp", fmCreateBackup);
+USEFORM("unFmGSettings.cpp", fmGSettings);
 //---------------------------------------------------------------------------
 int WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
 {
