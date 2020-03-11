@@ -104,6 +104,7 @@
         <ILINK_TranslatedLibraryPath>$(BDSLIB)\$(PLATFORM)\debug\$(LANGDIR);$(ILINK_TranslatedLibraryPath)</ILINK_TranslatedLibraryPath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+        <ILINK_DisableIncrementalLinking>true</ILINK_DisableIncrementalLinking>
         <Icon_MainIcon>buran9955PaWork_Icon.ico</Icon_MainIcon>
         <UsePackages>false</UsePackages>
         <DynamicRTL>false</DynamicRTL>
@@ -154,7 +155,7 @@
             <BuildOrder>18</BuildOrder>
         </CppCompile>
         <CppCompile Include="tools_debug\DebugMess.cpp">
-            <BuildOrder>21</BuildOrder>
+            <BuildOrder>24</BuildOrder>
         </CppCompile>
         <CppCompile Include="unFmBackup.cpp">
             <Form>fmCreateBackup</Form>
@@ -205,12 +206,6 @@
             <DependentOn>unFmViewZone.h</DependentOn>
             <BuildOrder>11</BuildOrder>
         </CppCompile>
-        <CppCompile Include="Unit1.cpp">
-            <Form>Form1</Form>
-            <FormType>dfm</FormType>
-            <DependentOn>Unit1.h</DependentOn>
-            <BuildOrder>19</BuildOrder>
-        </CppCompile>
         <CppCompile Include="unMain.cpp">
             <Form>fmMain</Form>
             <FormType>dfm</FormType>
@@ -252,21 +247,20 @@
             <DependentOn>unTUtils.h</DependentOn>
             <BuildOrder>7</BuildOrder>
         </CppCompile>
-        <FormResources Include="unSetDirectory.dfm"/>
-        <FormResources Include="unShowListTubes.dfm"/>
         <FormResources Include="unMain.dfm"/>
-        <FormResources Include="unFmViewZone.dfm"/>
-        <FormResources Include="Unit1.dfm"/>
-        <FormResources Include="unSQLDbModule.dfm"/>
-        <FormResources Include="unFmShowZones.dfm"/>
-        <FormResources Include="unFmBackup.dfm"/>
-        <FormResources Include="ABOUT_NTC_NK_URAN.dfm"/>
-        <FormResources Include="unFmModifyRecord.dfm"/>
+        <FormResources Include="unSetDirectory.dfm"/>
         <FormResources Include="unFmReport.dfm"/>
-        <FormResources Include="unFmGSettings.dfm"/>
+        <FormResources Include="unFmShowZones.dfm"/>
+        <FormResources Include="unFmViewZone.dfm"/>
+        <FormResources Include="unShowListTubes.dfm"/>
+        <FormResources Include="unSQLDbModule.dfm"/>
+        <FormResources Include="unFmModifyRecord.dfm"/>
+        <FormResources Include="QueryMessageForm.dfm"/>
+        <FormResources Include="ABOUT_NTC_NK_URAN.dfm"/>
         <FormResources Include="unFmInfo.dfm"/>
         <FormResources Include="unFmMessage.dfm"/>
-        <FormResources Include="QueryMessageForm.dfm"/>
+        <FormResources Include="unFmBackup.dfm"/>
+        <FormResources Include="unFmGSettings.dfm"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
