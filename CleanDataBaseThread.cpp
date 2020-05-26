@@ -43,6 +43,11 @@ void __fastcall CleanDataBaseThread::Execute() {
 		SqlDBModule->queryQuick->ExecSQL();
 		SqlDBModule->queryQuick->Close();
 
+		query = "DBCC SHRINKFILE(buran9955Pa_log)";
+		SqlDBModule->queryQuick->SQL->Text = query;
+		SqlDBModule->queryQuick->ExecSQL();
+		SqlDBModule->queryQuick->Close();
+
 		query = "UPDATE flags SET isBackupProcess = 0 WHERE rec_id=1";
 		SqlDBModule->queryQuick->SQL->Text = query;
 		SqlDBModule->queryQuick->ExecSQL();
